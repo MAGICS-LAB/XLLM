@@ -5,6 +5,9 @@ from sklearn.decomposition import PCA
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.metrics.pairwise import cosine_similarity
+import json
+from datetime import datetime
+import os
 
 def get_hidden_states(model, model_inputs):
     with torch.no_grad():
@@ -46,20 +49,30 @@ def calculate_cosine_similarity(hidden_states):
             print(f"Error calculating cosine similarity for layer {layer}")
     return cosine_similarities
 
-def plot_heatmaps(chat,cosine_similarities):
+def get_dir_name(data):
+    """
+    create the directory name for the figures
+    """
+    date_string = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    save_dir = f"figures/{date_string}/"
+    os.makedirs(save_dir, exist_ok=True)
+    data_string = json.dumps(data, indent=4)
+    with open(f'{save_dir}/data.json', 'w') as f:
+        f.write(data_string)
+    return save_dir
+
+def plot_heatmaps(data,cosine_similarities):
     """
     Plot heatmaps of cosine similarities for each layer.
     """
+    save_dir = get_dir_name(data)
     for layer, similarity_matrix in cosine_similarities.items():
         plt.figure()
         sns.heatmap(similarity_matrix, annot=False, cmap='coolwarm')
         plt.title(f"Cosine Similarity Heatmap for Layer {layer}")
         plt.xlabel("Input Index")
         plt.ylabel("Input Index")
-        if chat:
-            plt.savefig(f"./figures/cosine_similarity_layer_{layer}.png")
-        else:
-            plt.savefig(f"./figures/cosine_similarity_layer_{layer}_no_chat.png")
+        plt.savefig(save_dir + f"cosine_similarity_layer_{layer}.png")
         plt.close()
 
 def calculate_average_activation(hidden_states):
@@ -72,10 +85,11 @@ def calculate_average_activation(hidden_states):
         average_activations[layer] = np.mean(np.abs(hidden_states_array))
     return average_activations
 
-def plot_activation_comparison(chat,average_activations):
+def plot_activation_comparison(data,average_activations):
     """
     Plot the average absolute activations for each layer.
     """
+    save_dir = get_dir_name(data)
     layers = list(average_activations.keys())
     avg_activations = [average_activations[layer] for layer in layers]
     plt.figure()
@@ -83,8 +97,5 @@ def plot_activation_comparison(chat,average_activations):
     plt.title("Average Absolute Activation per Layer")
     plt.xlabel("Layer")
     plt.ylabel("Average Activation")
-    if chat:
-        plt.savefig("./figures/layer_activation_comparison.png")
-    else:
-        plt.savefig("./figures/layer_activation_comparison_no_chat.png")
+    plt.savefig(save_dir + "layer_activation_comparison.png")
     plt.close()

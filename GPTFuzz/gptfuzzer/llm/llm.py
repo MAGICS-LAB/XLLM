@@ -299,7 +299,7 @@ class OpenAILLM(LLM):
 
         if not api_key.startswith('sk-'):
             raise ValueError('OpenAI API key should start with sk-')
-        if model_path not in ['gpt-3.5-turbo', 'gpt-4']:
+        if model_path not in ['gpt-3.5-turbo', 'gpt-4', 'gpt-3.5-turbo-16k']:
             raise ValueError(
                 'OpenAI model path should be gpt-3.5-turbo or gpt-4')
         self.client = OpenAI(api_key = api_key)

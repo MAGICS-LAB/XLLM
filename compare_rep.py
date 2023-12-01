@@ -31,6 +31,9 @@ def get_dataset(subset, harmful_dataset, harmless_dataset, jailbreak_templates):
                 jb_template = random.choice(jailbreak_templates)
                 sub_dataset.append(jb_template.replace("[INSERT PROMPT HERE]", base_dataset[i]))
     
+    else:
+        sub_dataset = base_dataset
+        
     return sub_dataset
 
 
@@ -71,10 +74,10 @@ def main(args, data):
 
     # Assuming `train_rep` is your dictionary with the hidden states
     cosine_similarities = calculate_cosine_similarity(train_rep)
-    plot_heatmaps(args.chat,cosine_similarities)
+    plot_heatmaps(data,cosine_similarities)
 
     average_activations = calculate_average_activation(train_rep)
-    plot_activation_comparison(args.chat,average_activations)
+    plot_activation_comparison(data,average_activations)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Representation Visualization')

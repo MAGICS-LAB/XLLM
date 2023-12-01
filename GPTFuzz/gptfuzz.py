@@ -1,5 +1,5 @@
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'  # for debugging
+# os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'  # for debugging
 
 from fastchat.model import add_model_args
 import argparse
@@ -25,10 +25,11 @@ def main(args):
     openai_model = OpenAILLM(args.model_path, args.openai_key)
     target_model = LocalLLM(args.target_model) 
     # target_model = LocalVLLM(args.target_model)
-    roberta_model = RoBERTaPredictor('/home/zck7060/chatguard/archieve_2000/checkpoints_gpt4_90000', device='cuda:1')
+    roberta_model = RoBERTaPredictor('/home/zck7060/chatguard/archieve_2000/checkpoints_gpt4_90000', device='cuda:0')
 
-    questions = pd.read_csv('/home/jys3649/projects/xllm/datasets/harmful.csv')['text'].tolist()
-
+    questions = [
+            pd.read_csv('/home/jys3649/projects/xllm/datasets/harmful.csv')['text'].tolist()[args.index]
+    ]
     fuzzer = GPTFuzzer(
         questions=questions,
         # target_model=openai_model,
@@ -48,6 +49,7 @@ def main(args):
         max_jailbreak=args.max_jailbreak,
         max_query=args.max_query,
         generate_in_batch=False,
+        result_file=f'/home/jys3649/projects/xllm/datasets/{args.index}.csv'
     )
 
     fuzzer.run()
@@ -55,18 +57,19 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Fuzzing parameters')
+    parser.add_argument('--index', type=int, default=0, help='The index of the question')
     parser.add_argument('--openai_key', type=str, default='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', help='OpenAI API Key')
     parser.add_argument('--claude_key', type=str, default='', help='Claude API Key')
     parser.add_argument('--palm_key', type=str, default='', help='PaLM2 api key')
-    parser.add_argument('--model_path', type=str, default='gpt-3.5-turbo',
+    parser.add_argument('--model_path', type=str, default='gpt-3.5-turbo-16k',
                         help='mutate model path')
     parser.add_argument('--target_model', type=str, default='meta-llama/Llama-2-7b-chat-hf',
                         help='The target model, openai model or open-sourced LLMs')
-    parser.add_argument('--max_query', type=int, default=256000,
+    parser.add_argument('--max_query', type=int, default=2000,
                         help='The maximum number of queries')
     parser.add_argument('--max_jailbreak', type=int,
-                        default=2560, help='The maximum jailbreak number')
-    parser.add_argument('--energy', type=int, default=1,
+                        default=20, help='The maximum jailbreak number')
+    parser.add_argument('--energy', type=int, default=5,
                         help='The energy of the fuzzing process')
     parser.add_argument('--seed_selection_strategy', type=str,
                         default='round_robin', help='The seed selection strategy')
