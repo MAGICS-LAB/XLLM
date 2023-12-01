@@ -9,49 +9,94 @@ from datasets import load_dataset
 import pandas as pd
 from read_rep import *
 import csv
+import argparse
+import random
 
-chat = True
-use_jailbreak_template = False
-use_template_index = 2
-if chat:
-    model_name_or_path = 'meta-llama/Llama-2-7b-chat-hf'
-else:
-    model_name_or_path = 'meta-llama/Llama-2-7b-hf'
-
-model = AutoModelForCausalLM.from_pretrained(
-    model_name_or_path,
-    torch_dtype=torch.float16,
-    device_map='auto'
-    ).eval()
-tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=False)
-tokenizer.padding_side = 'left'
-tokenizer.pad_token = tokenizer.unk_token if tokenizer.pad_token is None else tokenizer.pad_token
-
-if chat:
-    template =  "[INST] <<SYS>><</SYS>>\n\n{instruction} [/INST] "
-    # template =  "[INST] <<SYS>>\nYou are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.\n\nIf a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.\n<</SYS>>\n\n{instruction} [/INST] "
-else:
-    template = "{instruction}"
-
-harmful_dataset = pd.read_csv('datasets/harmful.csv')['text'].tolist()
-harmless_dataset = pd.read_csv('datasets/harmless.csv')['text'].tolist()
-dataset = harmful_dataset + harmless_dataset
+def get_dataset(subset, harmful_dataset, harmless_dataset, jailbreak_templates):
+    if subset['harmful']:
+        base_dataset = harmful_dataset
+    else:
+        base_dataset = harmless_dataset
+        
+    if subset['use_jailbreak_template']:
+        if not subset['different_jb_templates']:
+            if subset['random_jailbreak_templates']:
+                jb_template = random.choice(jailbreak_templates)
+            else:
+                jb_template = jailbreak_templates[subset['use_template_index']]
+            sub_dataset = [jb_template.replace("[INSERT PROMPT HERE]", s) for s in base_dataset]
+        else:
+            sub_dataset = []
+            for i in range(len(base_dataset)):
+                jb_template = random.choice(jailbreak_templates)
+                sub_dataset.append(jb_template.replace("[INSERT PROMPT HERE]", base_dataset[i]))
+    
+    return sub_dataset
 
 
-if use_jailbreak_template:
-    jailbreak_templates = pd.read_csv('GPTFuzz/datasets/prompts/GPTFuzzer.csv')['text'].tolist()
-    jailbreak_template = jailbreak_templates[use_template_index]
-    dataset = [jailbreak_template.replace("[INSERT PROMPT HERE]", s) for s in dataset]
+def main(args, data):
+    if args.chat:
+        model_name_or_path = 'meta-llama/Llama-2-7b-chat-hf'
+    else:
+        model_name_or_path = 'meta-llama/Llama-2-7b-hf'
 
-hidden_layers = list(range(-1, -model.config.num_hidden_layers, -1))
-batch_size = 8
-rep_token = -1
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name_or_path,
+        torch_dtype=torch.float16,
+        device_map='auto'
+        ).eval()
+    tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=False)
+    tokenizer.padding_side = 'left'
+    tokenizer.pad_token = tokenizer.unk_token if tokenizer.pad_token is None else tokenizer.pad_token
 
-train_rep = llm_read_rep(model, tokenizer, dataset, hidden_layers, template, batch_size, rep_token)
+    if args.chat:
+        template =  "[INST] <<SYS>><</SYS>>\n\n{instruction} [/INST] "
+        # template =  "[INST] <<SYS>>\nYou are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.\n\nIf a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.\n<</SYS>>\n\n{instruction} [/INST] "
+    else:
+        template = "{instruction}"
 
-# Assuming `train_rep` is your dictionary with the hidden states
-cosine_similarities = calculate_cosine_similarity(train_rep)
-plot_heatmaps(chat,cosine_similarities)
+    harmful_dataset = pd.read_csv('datasets/harmful.csv')['text'].tolist()
+    harmless_dataset = pd.read_csv('datasets/harmless.csv')['text'].tolist()
+    jailbreak_templates = pd.read_csv('datasets/GPTFuzzer.csv')['text'].tolist()
 
-average_activations = calculate_average_activation(train_rep)
-plot_activation_comparison(chat,average_activations)
+    dataset = []
+    for subset in data:
+        dataset += get_dataset(subset, harmful_dataset, harmless_dataset, jailbreak_templates)
+    
+    hidden_layers = list(range(-1, -model.config.num_hidden_layers, -1))
+    batch_size = 8
+    rep_token = -1
+
+    train_rep = llm_read_rep(model, tokenizer, dataset, hidden_layers, template, batch_size, rep_token)
+
+    # Assuming `train_rep` is your dictionary with the hidden states
+    cosine_similarities = calculate_cosine_similarity(train_rep)
+    plot_heatmaps(args.chat,cosine_similarities)
+
+    average_activations = calculate_average_activation(train_rep)
+    plot_activation_comparison(args.chat,average_activations)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Representation Visualization')
+    parser.add_argument('--chat', type=bool, default=True, help='Use chat model or the foundation model')
+    parser.add_argument('--batch_size', type=int, default=8, help='Batch size for reading representations')
+    parser.add_argument('--rep_token', type=int, default=-1, help='Token to extract representations from')
+    parser.add_argument('--read_rep_method', type=str, default='vanilla', help='Method to read representations')
+    args = parser.parse_args()
+    
+    dataset1 = {
+        'harmful': True,
+        'use_jailbreak_template': True,
+        'use_template_index': 2,
+        'random_jailbreak_templates': False,
+        'different_jb_templates': False,
+    }
+    
+    dataset2 = {
+        'harmful': True,
+        'use_jailbreak_template': False,
+    }
+    
+    data = [dataset1, dataset2]
+    
+    main(args, data)
