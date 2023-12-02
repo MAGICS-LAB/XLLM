@@ -3,3 +3,4 @@ __pycache__
 .figures
 *.csv
 *.png
+*.json

@@ -49,7 +49,7 @@ def main(args):
         max_jailbreak=args.max_jailbreak,
         max_query=args.max_query,
         generate_in_batch=False,
-        result_file=f'/home/jys3649/projects/xllm/datasets/{args.index}.csv'
+        result_file=f'/home/jys3649/projects/xllm/datasets/jb_prompts/{args.index}.csv'
     )
 
     fuzzer.run()

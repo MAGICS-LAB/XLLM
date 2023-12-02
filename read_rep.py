@@ -61,18 +61,17 @@ def get_dir_name(data):
         f.write(data_string)
     return save_dir
 
-def plot_heatmaps(data,cosine_similarities):
+def plot_heatmaps(save_path,cosine_similarities):
     """
     Plot heatmaps of cosine similarities for each layer.
     """
-    save_dir = get_dir_name(data)
     for layer, similarity_matrix in cosine_similarities.items():
         plt.figure()
         sns.heatmap(similarity_matrix, annot=False, cmap='coolwarm')
         plt.title(f"Cosine Similarity Heatmap for Layer {layer}")
         plt.xlabel("Input Index")
         plt.ylabel("Input Index")
-        plt.savefig(save_dir + f"cosine_similarity_layer_{layer}.png")
+        plt.savefig(save_path + f"cosine_similarity_layer_{layer}.png")
         plt.close()
 
 def calculate_average_activation(hidden_states):
@@ -85,11 +84,10 @@ def calculate_average_activation(hidden_states):
         average_activations[layer] = np.mean(np.abs(hidden_states_array))
     return average_activations
 
-def plot_activation_comparison(data,average_activations):
+def plot_activation_comparison(save_path,average_activations):
     """
     Plot the average absolute activations for each layer.
     """
-    save_dir = get_dir_name(data)
     layers = list(average_activations.keys())
     avg_activations = [average_activations[layer] for layer in layers]
     plt.figure()
@@ -97,5 +95,5 @@ def plot_activation_comparison(data,average_activations):
     plt.title("Average Absolute Activation per Layer")
     plt.xlabel("Layer")
     plt.ylabel("Average Activation")
-    plt.savefig(save_dir + "layer_activation_comparison.png")
+    plt.savefig(save_path + "layer_activation_comparison.png")
     plt.close()
