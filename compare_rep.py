@@ -46,6 +46,10 @@ def get_dataset(subset, harmful_dataset, harmless_dataset, jailbreak_templates):
                 print(e)
                 print("Skipping this index")
     
+    elif 'add_eos' in subset and subset['add_eos']:
+        eos_num = subset['eos_num']
+        sub_dataset = [s + '</s>'*eos_num for s in base_dataset]
+        
     else:
         sub_dataset = base_dataset
         
@@ -87,7 +91,7 @@ def main(args, data):
 
     train_rep = llm_read_rep(model, tokenizer, dataset, hidden_layers, template, batch_size, rep_token)
 
-    save_path = get_dir_name(data)
+    save_path = get_dir_name(data) + 'chat-' if args.chat else get_dir_name(data) + 'foundation-'
     # Assuming `train_rep` is your dictionary with the hidden states
     cosine_similarities = calculate_cosine_similarity(train_rep)
     plot_heatmaps(save_path,cosine_similarities)
@@ -106,9 +110,6 @@ if __name__ == "__main__":
     dataset1 = {
         'harmful': True,
         'use_jailbreak_template': False,
-        'use_template_index': 2,
-        'random_jailbreak_templates': True,
-        'different_jb_templates': True,
     }
     
     dataset2 = {
@@ -117,11 +118,26 @@ if __name__ == "__main__":
     }
     
     dataset3 = {
-        'harmful': False,
-        'use_jailbreak_template': False,
+        'harmful': True,
+        'different_jb_templates': True,
     }
     
+    dataset4 = {
+        'harmful': True,
+        'add_eos': True,
+        'eos_num': 10,
+    }
     
-    data = [dataset1, dataset2, dataset3]
+    dataset5 = {
+        'harmful': False,
+        'add_eos': True,
+        'eos_num': 10,
+    }
+    
+    dataset6 = {
+        'harmful': False,
+    }
+    
+    data = [dataset1, dataset2, dataset3, dataset4, dataset5, dataset6]
     
     main(args, data)

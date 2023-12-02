@@ -16,7 +16,7 @@ find_free_gpu() {
 }
 
 # Start the jobs with GPU assignment
-for index in {0..127}; do
+for index in {124..127}; do
     FREE_GPU=-1
 
     # Keep looping until a free GPU is found
