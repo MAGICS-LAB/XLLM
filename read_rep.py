@@ -74,15 +74,29 @@ def plot_heatmaps(save_path,cosine_similarities):
         plt.savefig(save_path + f"cosine_similarity_layer_{layer}.png")
         plt.close()
 
-def calculate_average_activation(hidden_states):
+def calculate_average_activation(hidden_states,dataset_slice=None):
     """
     Calculate the average absolute activation for each layer.
     """
-    average_activations = {}
-    for layer in hidden_states.keys():
-        hidden_states_array = np.array(hidden_states[layer])
-        average_activations[layer] = np.mean(np.abs(hidden_states_array))
-    return average_activations
+    if dataset_slice == None:
+        average_activations = {}
+        for layer in hidden_states.keys():
+            hidden_states_array = np.array(hidden_states[layer])
+            average_activations[layer] = np.mean(np.abs(hidden_states_array))
+        return average_activations
+    else:
+        average_activations = []
+        start_index = 0
+        end_index = 0
+        for i in range(len(dataset_slice)):
+            end_index += dataset_slice[i]
+            sub_dataset_average_activations = {}
+            for layer in hidden_states.keys():
+                hidden_states_array = np.array(hidden_states[layer][start_index:end_index])
+                sub_dataset_average_activations[layer] = np.mean(np.abs(hidden_states_array))
+            average_activations.append(sub_dataset_average_activations)
+            start_index = end_index
+        return average_activations
 
 def plot_activation_comparison(save_path,average_activations):
     """
@@ -96,4 +110,22 @@ def plot_activation_comparison(save_path,average_activations):
     plt.xlabel("Layer")
     plt.ylabel("Average Activation")
     plt.savefig(save_path + "layer_activation_comparison.png")
+    plt.close()
+    
+def plot_activation_line(save_path,average_activations):
+    """
+    Plot the average absolute activations for each layer.
+    The y-axis is the average absolute activation.
+    The x-axis is the layer index
+    Put all the average activations in one plot.
+    """
+    layers = list(average_activations[0].keys())
+    for i in range(len(average_activations)):
+        avg_activations = [average_activations[i][layer] for layer in layers]
+        plt.plot(layers, avg_activations, label=f"dataset {i}")
+    plt.title("Average Absolute Activation per Layer")
+    plt.xlabel("Layer")
+    plt.ylabel("Average Activation")
+    plt.legend()
+    plt.savefig(save_path + "layer_activation_line.png")
     plt.close()

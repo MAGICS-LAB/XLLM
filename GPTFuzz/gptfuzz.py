@@ -1,5 +1,5 @@
 import os
-# os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'  # for debugging
+os.environ['CUDA_VISIBLE_DEVICES'] = '2'  # for debugging
 
 from fastchat.model import add_model_args
 import argparse
@@ -27,9 +27,13 @@ def main(args):
     # target_model = LocalVLLM(args.target_model)
     roberta_model = RoBERTaPredictor('/home/zck7060/chatguard/archieve_2000/checkpoints_gpt4_90000', device='cuda:0')
 
-    questions = [
-            pd.read_csv('/home/jys3649/projects/xllm/datasets/harmful.csv')['text'].tolist()[args.index]
-    ]
+    origin_question = pd.read_csv('/home/jys3649/projects/xllm/datasets/harmful.csv')['text'].tolist()[args.index]
+    result_file = f'/home/jys3649/projects/xllm/datasets/jb_prompts/{args.index}.csv'
+    if args.add_eos:
+        origin_question += '</s>'*8
+        result_file = f'/home/jys3649/projects/xllm/datasets/jb_prompts_eos/{args.index}_eos.csv'
+    
+    questions = [origin_question]
     fuzzer = GPTFuzzer(
         questions=questions,
         # target_model=openai_model,
@@ -49,7 +53,7 @@ def main(args):
         max_jailbreak=args.max_jailbreak,
         max_query=args.max_query,
         generate_in_batch=False,
-        result_file=f'/home/jys3649/projects/xllm/datasets/jb_prompts/{args.index}.csv'
+        result_file=result_file,
     )
 
     fuzzer.run()
@@ -76,6 +80,7 @@ if __name__ == "__main__":
     parser.add_argument("--max-new-tokens", type=int, default=512)
     parser.add_argument("--seed_path", type=str,
                         default="datasets/prompts/GPTFuzzer.csv")
+    parser.add_argument("--add_eos", type=bool, default=True)
     add_model_args(parser)
 
     args = parser.parse_args()

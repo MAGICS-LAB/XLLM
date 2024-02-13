@@ -1,11 +1,11 @@
 #!/bin/bash
 
 PYTHON_SCRIPT="gptfuzz.py"
-LOG_PATH_BASE="run_logs"
+LOG_PATH_BASE="run_logs_eos"
 
 # Function to find the first available GPU
 find_free_gpu() {
-    for i in {0..7}; do
+    for i in {0..3}; do
         if nvidia-smi -i $i | grep 'No running processes found' > /dev/null; then
             echo $i
             return
@@ -16,7 +16,7 @@ find_free_gpu() {
 }
 
 # Start the jobs with GPU assignment
-for index in {124..127}; do
+for index in {0..127}; do
     FREE_GPU=-1
 
     # Keep looping until a free GPU is found
