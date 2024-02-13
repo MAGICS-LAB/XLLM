@@ -293,12 +293,14 @@ class GCG:
         self._nonascii_toks, self._ascii_toks = get_nonascii_toks(self.tokenizer)
         curr_time = time.time()
         optim_prompts = []
+        optim_steps = []
         attack_attempt = 0
         
         
         while len(optim_prompts) < self.max_successful_prompt and attack_attempt < self.max_attack_attempts:
             attack_attempt += 1
             curr_optim_prompts = []
+            curr_optim_steps = []
             best_loss = 999999
             end_iter = False
             
@@ -463,6 +465,7 @@ class GCG:
                                 update_toks = 0
                                 print("Attack success, append the current trigger to optim_prompts")
                                 curr_optim_prompts.append(current_control_str)
+                                curr_optim_steps.append(attack_attempt * self.max_steps + i)
                                 print("Current success prompt number:", len(curr_optim_prompts))
                                 
                                 if len(curr_optim_prompts) >= self.max_prompts_in_single_attack:
@@ -487,11 +490,12 @@ class GCG:
             print('In {} attemp, number of optim prompts is: {}'.format(attack_attempt, len(curr_optim_prompts)))
             
             optim_prompts.extend(curr_optim_prompts)
+            optim_steps.extend(curr_optim_steps)
             
             print('After {} attemp, the total number of optim prompts is: {}'.format(attack_attempt, len(optim_prompts)))
         
         end_time = time.time()
         print("Total time: ", end_time - curr_time)
         
-        return optim_prompts
+        return optim_prompts, optim_steps
         

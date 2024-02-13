@@ -40,6 +40,6 @@ def plot_losses(log_files):
     plt.savefig('loss_comparison.png')
 
 # Usage example:
-# log_files = ['gcg_system.log', 'gcg_no_system.log', 'gcg_no_system_eos.log', 'gcg_system_eos.log']
-log_files = ['gcg_system.log', 'gcg_system_eos.log']  
+log_files = ['gcg_system.log', 'gcg_no_system.log', 'gcg_no_system_eos.log', 'gcg_system_eos.log']
+# log_files = ['gcg_system.log', 'gcg_system_eos.log']  
 plot_losses(log_files)
