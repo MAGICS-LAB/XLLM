@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PYTHON_SCRIPT="run_gcg.py"
-LOG_PATH_BASE="run_logs"
+LOG_PATH_BASE="run_logs_eos"
 
 # Function to find the first available GPU
 find_free_gpu() {
