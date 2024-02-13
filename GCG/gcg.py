@@ -477,7 +477,11 @@ class GCG:
                         print('**********')
                         
                 else:
-                    print('After {} iterations, the best loss is: {}'.format(i, best_loss.data.item()))
+                    if isinstance(best_loss, int):
+                        #sometimes the loss is nan
+                        print("After {} iterations, the best loss is: {}".format(i, best_loss))   
+                    else:
+                        print('After {} iterations, the best loss is: {}'.format(i, best_loss.data.item()))
                     local_optim_counter += 1
                     
                 del candidates, tmp_input, losses ; gc.collect()
