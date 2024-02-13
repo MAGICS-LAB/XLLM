@@ -465,7 +465,7 @@ class GCG:
                                 update_toks = 0
                                 print("Attack success, append the current trigger to optim_prompts")
                                 curr_optim_prompts.append(current_control_str)
-                                curr_optim_steps.append(attack_attempt * self.max_steps + i)
+                                curr_optim_steps.append( (attack_attempt - 1)  * self.max_steps + i)
                                 print("Current success prompt number:", len(curr_optim_prompts))
                                 
                                 if len(curr_optim_prompts) >= self.max_prompts_in_single_attack:

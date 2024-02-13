@@ -1,11 +1,11 @@
 #!/bin/bash
 
 PYTHON_SCRIPT="run_gcg.py"
-LOG_PATH_BASE="run_logs_eos"
+LOG_PATH_BASE="run_logs"
 
 # Function to find the first available GPU
 find_free_gpu() {
-    for i in {0..3}; do
+    for i in {0..6}; do
         if nvidia-smi -i $i | grep 'No running processes found' > /dev/null; then
             echo $i
             return
@@ -17,7 +17,7 @@ find_free_gpu() {
 
 # Start the jobs with GPU assignment
 for index in {0..127}; do
-# for index in 109; do
+
     FREE_GPU=-1
 
     # Keep looping until a free GPU is found
