@@ -49,7 +49,7 @@ class LocalLLM(LLM):
         )
         self.model_path = model_path
 
-        if system_message is None and 'Llama-3' in model_path:
+        if system_message is None and 'Llama-2' in model_path:
             # monkey patch for latest FastChat to use llama2's official system message
             self.system_message = "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. " \
             "Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. " \
@@ -299,9 +299,6 @@ class OpenAILLM(LLM):
 
         if not api_key.startswith('sk-'):
             raise ValueError('OpenAI API key should start with sk-')
-        if model_path not in ['gpt-3.5-turbo', 'gpt-4', 'gpt-3.5-turbo-16k']:
-            raise ValueError(
-                'OpenAI model path should be gpt-3.5-turbo or gpt-4')
         self.client = OpenAI(api_key = api_key)
         self.model_path = model_path
         self.system_message = system_message if system_message is not None else "You are a helpful assistant."
@@ -335,3 +332,13 @@ class OpenAILLM(LLM):
             for future in concurrent.futures.as_completed(futures):
                 results.extend(future.result())
         return results
+            
+    def predict(self, sequences):
+        prediction = self.generate(sequences)
+        print(prediction)
+        for i in range(len(prediction)):
+            try:
+                prediction[i] = int(prediction[i])
+            except:
+                prediction[i] = 0
+        return prediction
