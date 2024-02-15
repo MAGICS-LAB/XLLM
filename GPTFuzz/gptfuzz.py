@@ -1,5 +1,5 @@
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '6,7'  # for debugging
+# os.environ['CUDA_VISIBLE_DEVICES'] = '6,7'  # for debugging
 
 from fastchat.model import add_model_args
 import argparse
@@ -34,7 +34,7 @@ def main(args):
 
     result_file = f'/home/jys3649/projects/xllm/datasets/jb_prompts/{args.index}.csv'
     if args.add_eos:
-        origin_question += '</s>'*5
+        origin_question += '</s>'*6
         result_file = f'/home/jys3649/projects/xllm/datasets/jb_prompts_eos/{args.index}_eos.csv'
     
     questions = [origin_question]
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     parser.add_argument("--seed_path", type=str,
                         # default="datasets/prompts/GPTFuzzer.csv")
                         default="/home/jys3649/projects/tdc2023-starter-kit/jailbreak/datasets/prompts/top_25_prompts.csv")
-    parser.add_argument("--add_eos", type=bool, default=True)
+    parser.add_argument("--add_eos", type=bool, default=True, help="Add eos token to the prompts")
     add_model_args(parser)
 
     args = parser.parse_args()

@@ -6,7 +6,7 @@ class Predictor:
     def __init__(self, path):
         self.path = path
 
-    def predict(self, sequences):
+    def predict(self, sequences, question):
         raise NotImplementedError("Predictor must implement predict method.")
 
 
@@ -18,7 +18,7 @@ class RoBERTaPredictor(Predictor):
             self.path).to(self.device)
         self.tokenizer = RobertaTokenizer.from_pretrained(self.path)
 
-    def predict(self, sequences):
+    def predict(self, sequences, question):
         inputs = self.tokenizer(sequences, padding=True, truncation=True,
                                 max_length=512, return_tensors="pt").to(self.device)
         with torch.no_grad():
