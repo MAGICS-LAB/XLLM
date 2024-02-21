@@ -69,8 +69,8 @@ def evaluate(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Evaluate GCG Results')
-    parser.add_argument('--path', type=str, default='/home/jys3649/projects/xllm/datasets/harmful_minimal_change.csv', help='The path of the csv file')
-    parser.add_argument('--output', type=str, default='/home/jys3649/projects/xllm/datasets/harmful_minimal_response.csv', help='The path of the output file')
+    parser.add_argument('--path', type=str, default='/home/jys3649/projects/xllm/datasets/harmful.csv', help='The path of the csv file')
+    parser.add_argument('--output', type=str, default='/home/jys3649/projects/xllm/datasets/harmful_response.csv', help='The path of the output file')
     parser.add_argument('--model', type=str, default='meta-llama/Llama-2-7b-chat-hf', help='the model name')
     parser.add_argument('--with_sys', type=bool, default=False, help='whether to include the system response')
     args = parser.parse_args()
