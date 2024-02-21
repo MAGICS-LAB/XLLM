@@ -218,8 +218,7 @@ if __name__ == "__main__":
         'eos_num': 5,
     }
 
-    data = [dataset1, dataset2, dataset3,
-            dataset4, dataset5, dataset6, dataset7]
+    data = [dataset6, dataset7]
     # data = [dataset1, dataset3]
 
     main(args, data)
