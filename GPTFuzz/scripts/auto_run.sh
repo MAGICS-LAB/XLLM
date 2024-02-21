@@ -5,7 +5,7 @@ LOG_PATH_BASE="run_logs_eos"
 
 # Function to find the first available GPU
 find_free_gpu() {
-    for i in {0..3}; do
+    for i in {1..7}; do
         if nvidia-smi -i $i | grep 'No running processes found' > /dev/null; then
             echo $i
             return

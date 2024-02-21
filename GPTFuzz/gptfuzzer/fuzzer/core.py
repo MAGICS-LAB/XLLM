@@ -166,7 +166,7 @@ class GPTFuzzer:
                     responses = self.target.generate_batch(messages)
                 prompt_node.response = responses
                 print(responses)
-                prompt_node.results = self.predictor.predict(responses)
+                prompt_node.results = self.predictor.predict(responses, question)
 
     def update(self, prompt_nodes: 'list[PromptNode]'):
         self.current_iteration += 1
