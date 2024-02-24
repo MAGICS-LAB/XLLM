@@ -9,8 +9,8 @@ import csv
 from transformers import (AutoModelForCausalLM, AutoTokenizer, GPT2LMHeadModel,
                           GPTJForCausalLM, GPTNeoXForCausalLM,
                           LlamaForCausalLM)
-from LLM_MMR.Attack_GCG.gcg_utils import get_nonascii_toks, verify_input, get_embedding_weight, get_embeddings, get_fixed_list, get_black_list
-from LLM_MMR.utils.templates import get_templates, get_end_tokens
+from LLM_MMR.Attack_GCG.gcg_utils import get_nonascii_toks, verify_input, get_embedding_weight, get_embeddings, get_fixed_list, get_black_list, chatgpt_evaluate
+from LLM_MMR.utils.templates import get_templates, get_end_tokens, get_eos
 
 def token_gradients(model, input_ids, target_tokens, input_slice, loss_slice):
 
@@ -249,7 +249,14 @@ class GCG:
         else:
             em = 0
         
-        if jailbroken and em:
+        question = self.args.question
+        if self.args.add_eos:
+            # remove the eos tokens from the question
+            eos_token = get_eos(self.args.model_path)
+            question = question.replace(eos_token, '')
+        chatgpt_evaluate_result = chatgpt_evaluate(generation, question)
+        
+        if jailbroken and em and chatgpt_evaluate_result:
             return True
         else:
             return False
@@ -269,6 +276,8 @@ class GCG:
             curr_optim_steps = []
             best_loss = 999999
             end_iter = False
+            print("*" * 40)
+            print("The current attak step is: ", attack_steps)
             
             # ========== setup system prompt ========== #
             toks = self.tokenizer(self.gcg_prompt['prompt']).input_ids
@@ -437,7 +446,7 @@ class GCG:
                             current_full_toks['input_ids'] = current_full_toks['input_ids'].cuda()
                             current_full_toks['attention_mask'] = current_full_toks['attention_mask'].cuda()
 
-                            output_str = self.model.generate(current_full_toks['input_ids'], max_new_tokens=32, do_sample=False)
+                            output_str = self.model.generate(current_full_toks['input_ids'], max_new_tokens=128, do_sample=False)
                             generation = self.tokenizer.decode(output_str[0][num_input_tokens:], skip_special_tokens=True)
 
                             # The generation must be checked after decoding and encoding because some token candidates are not valid after encoding
