@@ -1,5 +1,5 @@
 import os
-# os.environ['CUDA_VISIBLE_DEVICES'] = '6,7'  # for debugging
+os.environ['CUDA_VISIBLE_DEVICES'] = '7'  # for debugging
 
 from fastchat.model import add_model_args
 import argparse
@@ -32,10 +32,18 @@ def main(args):
     '''
     predictor = OpenAILLM(args.model_path, args.openai_key, system_message=predict_system_message)
 
-    result_file = f'/home/jys3649/projects/xllm/datasets/jb_prompts/{args.index}.csv'
+    result_file = f'/home/jys3649/projects/xllm/datasets/gemma_jb_prompts/{args.index}.csv'
     if args.add_eos:
-        origin_question += '</s>'*6
-        result_file = f'/home/jys3649/projects/xllm/datasets/jb_prompts_eos/{args.index}_eos.csv'
+        
+        if 'Llama-2' in args.target_model:
+            eos_token = '</s>'
+        elif 'mpt' in args.target_model:
+            eos_token = '<|endoftext|>'
+        elif 'gemma' in args.target_model:
+            eos_token = '<eos>'
+        
+        origin_question += eos_token*6
+        result_file = f'/home/jys3649/projects/xllm/datasets/gemma_jb_prompts_eos/{args.index}_eos.csv'
     
     questions = [origin_question]
     fuzzer = GPTFuzzer(
@@ -66,12 +74,12 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Fuzzing parameters')
     parser.add_argument('--index', type=int, default=0, help='The index of the question')
-    parser.add_argument('--openai_key', type=str, default='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', help='OpenAI API Key')
+    parser.add_argument('--openai_key', type=str, default='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', help='OpenAI API Key')
     parser.add_argument('--claude_key', type=str, default='', help='Claude API Key')
     parser.add_argument('--palm_key', type=str, default='', help='PaLM2 api key')
     parser.add_argument('--model_path', type=str, default='gpt-3.5-turbo-0125',
                         help='mutate model path')
-    parser.add_argument('--target_model', type=str, default='meta-llama/Llama-2-7b-chat-hf',
+    parser.add_argument('--target_model', type=str, default='google/gemma-7b-it',
                         help='The target model, openai model or open-sourced LLMs')
     parser.add_argument('--max_query', type=int, default=2000,
                         help='The maximum number of queries')
@@ -85,7 +93,7 @@ if __name__ == "__main__":
     parser.add_argument("--seed_path", type=str,
                         # default="datasets/prompts/GPTFuzzer.csv")
                         default="/home/jys3649/projects/tdc2023-starter-kit/jailbreak/datasets/prompts/top_25_prompts.csv")
-    parser.add_argument("--add_eos", type=bool, default=True, help="Add eos token to the prompts")
+    parser.add_argument("--add_eos", type=bool, default=False, help="Add eos token to the prompts")
     add_model_args(parser)
 
     args = parser.parse_args()

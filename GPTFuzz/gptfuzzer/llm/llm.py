@@ -7,7 +7,7 @@ import concurrent.futures
 from vllm import LLM as vllm
 from vllm import SamplingParams
 # import google.generativeai as palm
-from anthropic import Anthropic, HUMAN_PROMPT, AI_PROMPT
+# from anthropic import Anthropic, HUMAN_PROMPT, AI_PROMPT
 
 class LLM:
     def __init__(self):

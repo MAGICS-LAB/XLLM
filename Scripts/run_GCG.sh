@@ -1,8 +1,8 @@
 #!/bin/bash
 
 PYTHON_SCRIPT="./Experiments/gcg_exp.py"
-MODEL_PATH="mosaicml/mpt-7b-chat"
-ADD_EOS=True
+MODEL_PATH="google/gemma-2b-it"
+ADD_EOS=False
 
 # Set the log path based on ADD_EOS
 if [ "$ADD_EOS" = "True" ]; then
@@ -22,7 +22,7 @@ fi
 
 # Function to find the first available GPU
 find_free_gpu() {
-    for i in {4..7}; do
+    for i in {0..3}; do
         if nvidia-smi -i $i | grep 'No running processes found' > /dev/null; then
             echo $i
             return
