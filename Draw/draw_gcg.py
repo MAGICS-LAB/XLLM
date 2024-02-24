@@ -9,6 +9,8 @@ def load_data(folder_path):
         if file.endswith('.csv'):
             df = pd.read_csv(os.path.join(folder_path, file))
             data.append(df)
+    if len(data) != 128:
+        raise ValueError('The number of files is not 128')
     return pd.concat(data)  
 
 def calculate_success_rates(data, step_intervals):
@@ -46,9 +48,9 @@ def draw(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Draw GCG attack')
-    parser.add_argument('--model_path', type=str, default='mosaicml/mpt-7b-chat',
+    parser.add_argument('--model_path', type=str, default='google/gemma-7b-it',
                         help='target model path')
-    parser.add_argument('--steps', type=int, default=1000, help='The number of steps')
+    parser.add_argument('--steps', type=int, default=4000, help='The number of steps')
     parser.add_argument('--step_interval', type=int, default=100, help='The interval of steps')
     parser.add_argument('--save_path', type=str, default='.',)
 
