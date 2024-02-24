@@ -1,5 +1,3 @@
-
-
 LLAMA2_PROMPT_GCG = {
     "description": "Llama 2 GCG prompt",
     "prompt": '''[INST] <<SYS>>
@@ -63,6 +61,18 @@ MPT_7B_PROMPT_no_sys = {
 <|im_start|>assistant'''
 }
 
+GEMMA_7B_PROMPT_GCG = {
+    "description": "GEMMA 7B GCG prompt",
+    "prompt": '''<start_of_turn>user
+'''
+}
+
+GEMMA_7B_PROMPT = {
+    "description": "GEMMA 7B chat one shot prompt",
+    "prompt": '''<start_of_turn>user
+{instruction}<end_of_turn>
+<start_of_turn>model'''
+}
 
 
 def get_templates(model_path, func):
@@ -84,6 +94,11 @@ def get_templates(model_path, func):
             return MPT_7B_PROMPT
         else:
             raise ValueError(f'Unknown function {func}, should be one of "no_sys", "GCG", "chat"')
+    elif 'gemma' in model_path:
+        if func == 'GCG':
+            return GEMMA_7B_PROMPT_GCG
+        elif func == 'chat' or func == 'no_sys':
+            return GEMMA_7B_PROMPT
     else:
         raise ValueError(f'Unknown model {model_path}, should be one of "Llama-2", "mpt"')
     
@@ -92,6 +107,8 @@ def get_eos(model_path):
         return '</s>'
     elif 'mpt' in model_path:
         return '<|endoftext|>'
+    elif 'gemma' in model_path:
+        return '<eos>'
     else:
         raise ValueError(f'Unknown model {model_path}, plz set the eos token manually')
     
@@ -100,6 +117,10 @@ def get_end_tokens(model_path):
         return ' [/INST] '
     elif 'mpt' in model_path:
         return '<|im_end|>\n<|im_start|>assistant'
+    elif 'gemma' in model_path:
+        return '<end_of_turn>\n<start_of_turn>model'
+    else:
+        raise ValueError(f'Unknown model {model_path}, plz set the end token manually')
     
 if __name__ == '__main__':
     print(get_templates('meta-llama/Llama-2-7b-chat-hf', 'no_sys'))

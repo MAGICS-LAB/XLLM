@@ -3,8 +3,9 @@
 PYTHON_SCRIPT="./Experiments/gcg_exp.py"
 MODEL_PATH="mosaicml/mpt-7b-chat"
 ADD_EOS=True
-# Check if ADD_EOS is true
-if [[ "${ADD_EOS,,}" == "true" ]]; then
+
+# Set the log path based on ADD_EOS
+if [ "$ADD_EOS" = "True" ]; then
     LOG_PATH="Logs/${MODEL_PATH}/GCG_eos"
 else
     LOG_PATH="Logs/${MODEL_PATH}/GCG"
@@ -12,6 +13,12 @@ fi
 
 # Create the log directory if it does not exist
 mkdir -p "$LOG_PATH"
+
+# Conditional flag for ADD_EOS
+ADD_EOS_FLAG=""
+if [ "$ADD_EOS" = "True" ]; then
+    ADD_EOS_FLAG="--add_eos"
+fi
 
 # Function to find the first available GPU
 find_free_gpu() {
@@ -40,7 +47,7 @@ for index in {0..127}; do
 
     # Run the Python script on the free GPU
     (
-        CUDA_VISIBLE_DEVICES=$FREE_GPU python -u "$PYTHON_SCRIPT" --index $index --model_path $MODEL_PATH --add_eos $ADD_EOS > "${LOG_PATH}/${index}.log" 2>&1
+        CUDA_VISIBLE_DEVICES=$FREE_GPU python -u "$PYTHON_SCRIPT" --index $index --model_path $MODEL_PATH $ADD_EOS_FLAG > "${LOG_PATH}/${index}.log" 2>&1
         echo "Task $index on GPU $FREE_GPU finished."
     ) &
 
