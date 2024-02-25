@@ -17,38 +17,38 @@ def calculate_success_rates(data, step_intervals):
     rates = []
     total = 128
     for step in step_intervals:
-        successful = (data['steps'] <= step).sum() 
+        successful = (data['step'] <= step).sum() 
         rate = successful / total 
         rates.append(rate)
     return rates
 
 def draw(args):
-    gcg_results = f'../Results/{args.model_path}/GCG'
-    gcg_eos_results = f'../Results/{args.model_path}/GCG_eos'
-    gcg_data = load_data(gcg_results)
-    gcg_eos_data = load_data(gcg_eos_results)
+    fuzzer_results = f'../Results/{args.model_path}/GPTFuzzer'
+    fuzzer_eos_results = f'../Results/{args.model_path}/GPTFuzzer_eos'
+    fuzzer_data = load_data(fuzzer_results)
+    fuzzer_eos_data = load_data(fuzzer_eos_results)
     
     step_intervals = range(0, args.steps+1, args.step_interval)
-    gcg_rates = calculate_success_rates(gcg_data, step_intervals)
-    gcg_eos_rates = calculate_success_rates(gcg_eos_data, step_intervals)
+    fuzzer_rates = calculate_success_rates(fuzzer_data, step_intervals)
+    fuzzer_eos_rates = calculate_success_rates(fuzzer_eos_data, step_intervals)
     
     plt.figure(figsize=(10, 6)) 
-    plt.plot(step_intervals, gcg_rates, label='gcg')
-    plt.plot(step_intervals, gcg_eos_rates, label='gcg_eos')
+    plt.plot(step_intervals, fuzzer_rates, label='fuzzer')
+    plt.plot(step_intervals, fuzzer_eos_rates, label='fuzzer_eos')
     plt.xlabel('Steps')
     plt.ylabel('Success Rate')
-    plt.title('Success Rates: GCG vs GCG_EOS')
+    plt.title('Success Rates: Fuzzer vs Fuzzer_EOS')
     plt.legend()
     plt.grid(True) 
     save_folder = f'{args.save_path}/{args.model_path}'
     if not os.path.exists(save_folder):
         os.makedirs(save_folder)
-    plt.savefig(f'{save_folder}/gcg_vs_gcg_eos.png')
-    print(f'Figure saved at {save_folder}/gcg_vs_gcg_eos.png')
+    plt.savefig(f'{save_folder}/fuzzer_vs_fuzzer_eos.png')
+    print(f'Figure saved at {save_folder}/fuzzer_vs_fuzzer_eos.png')
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Draw GCG attack')
+    parser = argparse.ArgumentParser(description='Draw GPTFuzzer attack')
     parser.add_argument('--model_path', type=str, default='google/gemma-2b-it',
                         help='target model path')
     parser.add_argument('--steps', type=int, default=1000, help='The number of steps')

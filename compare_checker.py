@@ -50,16 +50,19 @@ def main(args, data):
     hidden_layers = list(range(-1, -model.config.num_hidden_layers, -1))
     batch_size = args.batch_size
     rep_token = args.rep_token
-
-    train_rep = llm_read_rep(model, tokenizer, dataset, hidden_layers, template, batch_size, rep_token)
-
     save_path = get_dir_name(data) + 'chat-' if args.chat else get_dir_name(data) + 'foundation-'
-    # Assuming `train_rep` is your dictionary with the hidden states
-    cosine_similarities = calculate_cosine_similarity(train_rep)
-    plot_heatmaps(save_path,cosine_similarities)
-
-    average_activations = calculate_average_activation(train_rep,dataset_slice)
-    plot_activation_line(save_path,average_activations)
+    
+    train_rep = llm_read_rep(model, tokenizer, dataset, hidden_layers, template, batch_size, rep_token)
+    avg_cos_sim = average_cosine_similarity(train_rep)
+    plot_avg_cosine_similarity(save_path,avg_cos_sim)
+    diff_rep = pair_diff(train_rep)
+    pca_components = perform_pca_per_hidden_state(diff_rep, n_components=1)
+    
+    
+    plot_pca(save_path,pca_components)
+    
+    
+    print("Done")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Representation Visualization')
@@ -76,38 +79,7 @@ if __name__ == "__main__":
     dataset2 = {
         'harmful': False,
     }
-    
-    dataset3 = {
-        'harmful': True,
-        'use_jailbreak_template': True,
-        'different_jb_templates': True,
-    }
-    
-    dataset4 = {
-        'harmful': True,
-        'use_success_jb_template': True,
-    }
-    
-    dataset5 = {
-        'harmful': True,
-        'use_gcg': True,
-    }
-    
-    dataset6 = {
-        'harmful': True,
-        'add_eos': True,
-        'eos_num': 5,
-    }
-    
-    dataset7 = {
-        'harmful': False,
-        'add_eos': True,
-        'eos_num': 5,
-    }
-    
-    
-    
+   
     data = [dataset1, dataset2]
-    # data = [dataset1, dataset3]
     
     main(args, data)

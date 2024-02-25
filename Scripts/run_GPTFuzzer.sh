@@ -1,14 +1,14 @@
 #!/bin/bash
 
-PYTHON_SCRIPT="./Experiments/gcg_exp.py"
+PYTHON_SCRIPT="./Experiments/fuzzer_exp.py"
 MODEL_PATH="google/gemma-2b-it"
 ADD_EOS=True
 
 # Set the log path based on ADD_EOS
 if [ "$ADD_EOS" = "True" ]; then
-    LOG_PATH="Logs/${MODEL_PATH}/GCG_eos"
+    LOG_PATH="Logs/${MODEL_PATH}/GPTFuzzer_eos"
 else
-    LOG_PATH="Logs/${MODEL_PATH}/GCG"
+    LOG_PATH="Logs/${MODEL_PATH}/GPTFuzzer"
 fi
 
 # Create the log directory if it does not exist
@@ -22,7 +22,7 @@ fi
 
 # Function to find the first available GPU
 find_free_gpu() {
-    for i in {5..7}; do
+    for i in {4..7}; do
         if nvidia-smi -i $i | grep 'No running processes found' > /dev/null; then
             echo $i
             return
@@ -34,7 +34,6 @@ find_free_gpu() {
 
 # Start the jobs with GPU assignment
 for index in {0..127}; do
-
     FREE_GPU=-1
 
     # Keep looping until a free GPU is found
@@ -47,7 +46,7 @@ for index in {0..127}; do
 
     # Run the Python script on the free GPU
     (
-        CUDA_VISIBLE_DEVICES=$FREE_GPU python -u "$PYTHON_SCRIPT" --index $index --model_path $MODEL_PATH $ADD_EOS_FLAG > "${LOG_PATH}/${index}.log" 2>&1
+        CUDA_VISIBLE_DEVICES=$FREE_GPU python -u "$PYTHON_SCRIPT" --index $index --target_model $MODEL_PATH $ADD_EOS_FLAG > "${LOG_PATH}/${index}.log" 2>&1
         echo "Task $index on GPU $FREE_GPU finished."
     ) &
 

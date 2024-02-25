@@ -80,6 +80,3 @@ def fuzzer_attack(args):
     )
 
     fuzzer.run()
-
-
-

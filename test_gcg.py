@@ -1,8 +1,6 @@
-import sys
+# LLM_MMR/main.py
 import os
-
-# Add the path to the LLM_MMR folder to sys.path
-sys.path.append(os.path.abspath('../LLM_MMR'))
+os.environ['CUDA_VISIBLE_DEVICES'] = '7'  # for debugging
 from LLM_MMR.Attack_GCG.run_gcg import gcg_attack
 import argparse
 
@@ -13,12 +11,12 @@ if __name__ == "__main__":
                         help='target model path')
     parser.add_argument("--control_string_length", type=int, default=30)
     parser.add_argument("--max_steps", type=int, default=1000)
-    parser.add_argument("--max_attack_steps", type=int, default=1000)
-    parser.add_argument("--early_stop", type=bool, default=False)
+    parser.add_argument("--max_attack_steps", type=int, default=4000)
+    parser.add_argument("--early_stop", type=bool, default=True)
     parser.add_argument("--max_attack_attempts", type=int, default=20)
     parser.add_argument("--max_prompts_in_single_attack", type=int, default=1)
     parser.add_argument("--max_successful_prompt", type=int, default=1)
-    parser.add_argument("--add_eos", action='store_true')
+    parser.add_argument("--add_eos", type=bool, default=True)
     parser.add_argument("--eos_num", type=int, default=10)
 
     args = parser.parse_args()

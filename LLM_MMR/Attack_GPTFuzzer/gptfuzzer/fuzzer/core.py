@@ -185,7 +185,7 @@ class GPTFuzzer:
                 prompt_node.index = len(self.prompt_nodes)
                 self.prompt_nodes.append(prompt_node)
                 self.writter.writerow([prompt_node.index, prompt_node.prompt,
-                                       prompt_node.response, prompt_node.parent.index, prompt_node.results, self.current_iteration])
+                                       prompt_node.response, prompt_node.parent.index, prompt_node.results, self.current_query])
 
             self.current_jailbreak += prompt_node.num_jailbreak
             self.current_query += prompt_node.num_query

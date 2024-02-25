@@ -8,6 +8,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 import json
 from datetime import datetime
 import os
+from sklearn.preprocessing import StandardScaler
+from scipy.spatial.distance import cosine
 
 def get_hidden_states(model, model_inputs):
     with torch.no_grad():
@@ -32,6 +34,36 @@ def llm_read_rep(model, tokenizer, dataset, hidden_layers, template, batch_size,
     print("Done fetching hidden states")
     # hidden_states = average_hidden_states(hidden_layers, hidden_states)
     return hidden_states
+
+def pair_diff(hidden_states):
+    hidden_states_diff = {}
+    num_samples = len(hidden_states[-1])
+    for layer in hidden_states.keys():
+        layer_representations_positive = hidden_states[layer][:num_samples//2]
+        layer_representations_negative = hidden_states[layer][num_samples//2:]
+        hidden_states_diff[layer] = [layer_representations_negative[i] - layer_representations_positive[i] for i in range(num_samples//2)]
+    return hidden_states_diff
+
+def perform_pca_per_hidden_state(hidden_states_diff, n_components=1):
+    pca_importance = {}
+    for layer in hidden_states_diff.keys():
+        layer_data = np.array(hidden_states_diff[layer])  # Shape: (num_pairs, hidden_size)
+        scaler = StandardScaler()
+        normalized_data = scaler.fit_transform(layer_data.T)  # Transpose to normalize across pairs
+        pca = PCA(n_components=n_components)
+        pca_results = pca.fit_transform(normalized_data).flatten()  # Shape: (hidden_size,)
+        pca_importance[layer] = pca_results
+    return pca_importance
+
+def average_cosine_similarity(hidden_states):
+    num_pairs = len(hidden_states[-1]) // 2
+    avg_cos_sim = {}
+    for layer in hidden_states.keys():
+        layer_representations_positive = hidden_states[layer][:num_pairs]
+        layer_representations_negative = hidden_states[layer][num_pairs:]
+        cos_sim = [1 - cosine(layer_representations_positive[i], layer_representations_negative[i]) for i in range(num_pairs)]
+        avg_cos_sim[layer] = np.mean(cos_sim)
+    return avg_cos_sim
 
 def calculate_cosine_similarity(hidden_states):
     """
@@ -129,3 +161,38 @@ def plot_activation_line(save_path,average_activations):
     plt.legend()
     plt.savefig(save_path + "layer_activation_line.png")
     plt.close()
+
+
+def plot_pca(save_path,pca_importance):
+    """
+    Plot the one componnet PCA results in one figure
+    x-axis is the index of layer
+    y-axis is the PCA result
+    """
+    layer_importance = {layer: np.mean(np.abs(importance)) for layer, importance in pca_importance.items()}
+    layers = list(layer_importance.keys())
+    importance_values = [layer_importance[layer] for layer in layers]
+    
+    plt.figure(figsize=(10, 6))
+    plt.bar(layers, importance_values)
+    plt.title("Layer-wise Importance for Ethical Checker")
+    plt.xlabel("Layer")
+    plt.ylabel("Importance")
+    plt.xticks(rotation=45)
+    plt.savefig(save_path + "layer_importance.png")
+    
+def plot_avg_cosine_similarity(save_path,avg_cos_sim):
+    """
+    Plot the average cosine similarity for each layer.
+    """
+    layers = list(avg_cos_sim.keys())
+    cos_sim_values = [avg_cos_sim[layer] for layer in layers]
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(layers, cos_sim_values, marker='o')
+    plt.title("Average Cosine Similarity Across Layers")
+    plt.xlabel("Layer")
+    plt.ylabel("Average Cosine Similarity")
+    plt.grid(True)
+    plt.xticks(rotation=45)
+    plt.savefig(save_path + "avg_cosine_similarity.png")

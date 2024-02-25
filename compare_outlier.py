@@ -1,3 +1,5 @@
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 import wandb
 from collections import OrderedDict
 from utils.dataset import get_dataset
@@ -11,8 +13,6 @@ from tqdm import tqdm
 import torch
 import matplotlib.pyplot as plt
 from transformers import AutoTokenizer, AutoModelForCausalLM
-import os
-# os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3,4,5,6,7"
 
 
 class SimpleAverageMeter:
@@ -77,15 +77,15 @@ def main(args, data):
     tokenizer.pad_token = tokenizer.unk_token if tokenizer.pad_token is None else tokenizer.pad_token
 
     if args.chat:
-        # template = "[INST] <<SYS>><</SYS>>\n\n{instruction} [/INST] "
-        template = "[INST] <<SYS>>\nYou are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.\n\nIf a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.\n<</SYS>>\n\n{instruction} [/INST] "
+        template = "[INST] <<SYS>><</SYS>>\n\n{instruction} [/INST] "
+        # template = "[INST] <<SYS>>\nYou are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.\n\nIf a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.\n<</SYS>>\n\n{instruction} [/INST] "
     else:
         template = "{instruction}"
 
-    harmful_dataset = pd.read_csv('dataset/harmful.csv')['text'].tolist()
-    harmless_dataset = pd.read_csv('dataset/harmless.csv')['text'].tolist()
+    harmful_dataset = pd.read_csv('datasets/harmful.csv')['text'].tolist()
+    harmless_dataset = pd.read_csv('datasets/harmless.csv')['text'].tolist()
     jailbreak_templates = pd.read_csv(
-        'dataset/GPTFuzzer.csv')['text'].tolist()
+        'datasets/GPTFuzzer.csv')['text'].tolist()
 
     dataset = []
     dataset_slice = []
@@ -218,8 +218,8 @@ if __name__ == "__main__":
         'eos_num': 5,
     }
 
-    data = [dataset1, dataset2, dataset3,
-            dataset4, dataset5, dataset6, dataset7]
-    # data = [dataset1, dataset3]
+    # data = [dataset1, dataset2, dataset3,
+    #         dataset4, dataset5, dataset6, dataset7]
+    data = [dataset1]
 
     main(args, data)
