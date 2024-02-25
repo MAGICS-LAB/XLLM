@@ -4,3 +4,8 @@ __pycache__
 *.csv
 *.png
 *.json
+*.log
+rome/
+representation-engineering/
+!Dataset/*.csv
+GCG/
