@@ -8,3 +8,5 @@ datasets/
 *.log
 rome/
 representation-engineering/
+!Dataset/*.csv
+GCG/
