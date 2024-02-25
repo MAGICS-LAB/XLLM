@@ -92,7 +92,7 @@ if __name__ == "__main__":
     parser.add_argument("--max-new-tokens", type=int, default=512)
     parser.add_argument("--seed_path", type=str,
                         # default="datasets/prompts/GPTFuzzer.csv")
-                        default="/home/jys3649/projects/tdc2023-starter-kit/jailbreak/datasets/prompts/top_25_prompts.csv")
+                        default="/home/jys3649/projects/LLM_MMR/Dataset/fuzzer_seed.csv")
     parser.add_argument("--add_eos", type=bool, default=False, help="Add eos token to the prompts")
     add_model_args(parser)
 

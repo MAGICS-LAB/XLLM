@@ -106,7 +106,7 @@ class GPTFuzzer:
         self.raw_fp = open(result_file, 'w', buffering=1)
         self.writter = csv.writer(self.raw_fp)
         self.writter.writerow(
-            ['index', 'prompt', 'response', 'parent', 'results'])
+            ['index', 'prompt', 'response', 'parent', 'results', 'step'])
 
         self.generate_in_batch = False
         if len(self.questions) > 0 and generate_in_batch is True:
@@ -176,7 +176,7 @@ class GPTFuzzer:
                 prompt_node.index = len(self.prompt_nodes)
                 self.prompt_nodes.append(prompt_node)
                 self.writter.writerow([prompt_node.index, prompt_node.prompt,
-                                       prompt_node.response, prompt_node.parent.index, prompt_node.results])
+                                       prompt_node.response, prompt_node.parent.index, prompt_node.results, self.current_iteration])
 
             self.current_jailbreak += prompt_node.num_jailbreak
             self.current_query += prompt_node.num_query
