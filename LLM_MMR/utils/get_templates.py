@@ -31,11 +31,11 @@ def chat_templates(model_path, func):
     
 if __name__ == "__main__":
     # test meta-llama/Llama-2-7b-chat-hf
-    print(chat_templates('meta-llama/Llama-2-7b-chat-hf', 'no_sys'))
+    print(chat_templates('google/gemma-7b-it', 'no_sys'))
     print("=====================================")
     print(chat_templates('meta-llama/Llama-2-7b-chat-hf', 'GCG'))
     print("=====================================")
-    print(chat_templates('meta-llama/Llama-2-7b-chat-hf', 'chat'))
+    print(chat_templates('google/gemma-7b-it', 'chat'))
     print("=====================================")
     
     # test mosaicml/mpt-7b-chat

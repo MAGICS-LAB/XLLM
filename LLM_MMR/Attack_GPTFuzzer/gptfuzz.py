@@ -53,11 +53,12 @@ def fuzzer_attack(args):
     if args.add_eos:
         eos_token = get_eos(args.target_model)
         questions = questions + eos_token * args.eos_num
+        
     args.question = questions
     print("The question is: ", questions)
     
     fuzzer = GPTFuzzer(
-        questions=args.question,
+        questions=[args.question],
         # target_model=openai_model,
         target=target_model,
         predictor=predictor,
@@ -74,7 +75,7 @@ def fuzzer_attack(args):
         energy=args.energy,
         max_jailbreak=args.max_jailbreak,
         max_query=args.max_query,
-        generate_in_batch=False,
+        generate_in_batch=True,
         result_file=save_path,
     )
 
