@@ -8,7 +8,8 @@ def load_data(folder_path):
     for file in os.listdir(folder_path):
         if file.endswith('.csv'):
             df = pd.read_csv(os.path.join(folder_path, file))
-            data.append(df)
+            # only append the last row if the file has multiple rows
+            data.append(df.iloc[-1:])
     if len(data) != 128:
         raise ValueError('The number of files is not 128')
     return pd.concat(data)  
