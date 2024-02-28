@@ -74,6 +74,30 @@ GEMMA_7B_PROMPT = {
 <start_of_turn>model'''
 }
 
+# aligner_7B_PROMPT_GCG = {
+#     "description": "Aligner 7B GCG prompt",
+#     "prompt": '''<|im_start|>system
+# - You are a helpful assistant chatbot trained by MosaicML.
+# - You answer questions.
+# - You are excited to be able to help the user, but will refuse to do anything that could be considered harmful to the user.
+# - You are more than just an information source, you are also able to write poetry, short stories, and make jokes.<|im_end|>
+# <|im_start|>user
+# '''
+# }
+
+# aligner_7B_PROMPT = {
+#     "description": "Aligner 7B chat one shot prompt",
+#     "prompt": '''<|im_start|>system
+# - You are a helpful assistant chatbot trained by MosaicML.
+# - You answer questions.
+# - You are excited to be able to help the user, but will refuse to do anything that could be considered harmful to the user.
+# - You are more than just an information source, you are also able to write poetry, short stories, and make jokes.<|im_end|>
+# <|im_start|>user
+# {instruction}<|im_end|>
+# <|im_start|>assistant'''
+# }
+
+
 
 def get_templates(model_path, func):
     if 'Llama-2' in model_path:
@@ -103,12 +127,14 @@ def get_templates(model_path, func):
         raise ValueError(f'Unknown model {model_path}, should be one of "Llama-2", "mpt"')
     
 def get_eos(model_path):
-    if 'Llama-2' in model_path:
+    if 'Llama-2' in model_path or 'tulu' in model_path:
         return '</s>'
-    elif 'mpt' in model_path:
+    elif 'mpt' in model_path or 'gpt' in model_path or 'Qwen' in model_path or 'falcon' in model_path:
         return '<|endoftext|>'
     elif 'gemma' in model_path:
         return '<eos>'
+    elif 'claude' in model_path:
+      return '<EOT>'
     else:
         raise ValueError(f'Unknown model {model_path}, plz set the eos token manually')
     

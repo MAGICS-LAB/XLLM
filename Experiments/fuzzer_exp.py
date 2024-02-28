@@ -6,7 +6,7 @@ sys.path.append(os.path.abspath('../LLM_MMR'))
 import argparse
 from LLM_MMR.Attack_GPTFuzzer.gptfuzz import fuzzer_attack
 from fastchat.model import add_model_args
-from LLM_MMR.utils.constants import openai_key
+from LLM_MMR.utils.constants import openai_key, claude_key, gemini_key
 
 
 if __name__ == "__main__":
@@ -33,4 +33,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     args.openai_key = openai_key
+    args.claude_key = claude_key
+    args.gemini_key = gemini_key
     fuzzer_attack(args)
