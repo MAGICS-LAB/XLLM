@@ -7,7 +7,8 @@ import concurrent.futures
 from vllm import LLM as vllm
 from vllm import SamplingParams
 from LLM_MMR.utils.constants import get_black_list
-
+from anthropic import Anthropic, HUMAN_PROMPT, AI_PROMPT
+import google.generativeai as genai
 
 class LLM:
     def __init__(self):
@@ -147,6 +148,45 @@ class LocalLLM(LLM):
         return outputs
 
 
+class ClaudeLLM(LLM):
+    def __init__(self,
+                 model_path='claude-instant-1.2',
+                 api_key=None
+                ):
+        super().__init__()
+        
+        if len(api_key) != 108:
+            raise ValueError('invalid Claude API key')
+        
+        self.model_path = model_path
+        self.api_key = api_key
+        self.anthropic = Anthropic(
+            api_key=self.api_key
+        )
+
+    def generate(self, prompt, max_tokens=512, max_trials=1, failure_sleep_time=1):
+        
+        for _ in range(max_trials):
+            try:
+                completion = self.anthropic.completions.create(
+                    model=self.model_path,
+                    max_tokens_to_sample=max_tokens,
+                    prompt=f"{HUMAN_PROMPT} {prompt}{AI_PROMPT}",
+                )
+                return [completion.completion]
+            except Exception as e:
+                logging.warning(
+                    f"Claude API call failed due to {e}. Retrying {_+1} / {max_trials} times...")
+                time.sleep(failure_sleep_time)
+
+        return [" "]
+    
+    def generate_batch(self, prompts, max_tokens=512, max_trials=1, failure_sleep_time=1):
+        results = []
+        for prompt in prompts:
+            results.extend(self.generate(prompt, max_tokens, max_trials, failure_sleep_time))
+        return results
+
 class LocalVLLM(LLM):
     def __init__(self,
                  model_path,
@@ -264,3 +304,41 @@ class OpenAILLM(LLM):
         if prediction[0] == 1:
             print(sequences[0])
         return prediction
+
+class GeminiLLM(LLM):
+    def __init__(self,
+                 model_path='gemini-pro',
+                 api_key=None
+                ):
+        super().__init__()
+        
+        if len(api_key) != 39:
+            raise ValueError('invalid Gemini API key')
+        
+        self.model_path = model_path
+        self.api_key = api_key
+        genai.configure(api_key=api_key)
+        self.gemini = genai.GenerativeModel(self.model_path)
+
+    def generate(self, prompt, max_tokens=512, max_trials=1, failure_sleep_time=1):
+     
+   
+        for _ in range(max_trials):
+            try:
+                completion = self.gemini.generate_content(f"{HUMAN_PROMPT} {prompt}{AI_PROMPT}", max_tokens=max_tokens)
+                return [completion.text]
+            except Exception as e:
+                logging.warning(
+                    f"Gemini API call failed due to {e}. Retrying {_+1} / {max_trials} times...")
+                time.sleep(failure_sleep_time)
+
+        return [" "]
+    
+    def generate_batch(self, prompts, max_tokens=512, max_trials=1, failure_sleep_time=1):
+        results = []
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = {executor.submit(self.generate, prompt, max_tokens,
+                                       max_trials, failure_sleep_time): prompt for prompt in prompts}
+            for future in concurrent.futures.as_completed(futures):
+                results.extend(future.result())
+        return results

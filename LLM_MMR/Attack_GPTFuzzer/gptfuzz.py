@@ -9,7 +9,7 @@ from gptfuzzer.fuzzer.mutator import (
     MutateRandomSinglePolicy, OpenAIMutatorCrossOver, OpenAIMutatorExpand,
     OpenAIMutatorGenerateSimilar, OpenAIMutatorRephrase, OpenAIMutatorShorten)
 from gptfuzzer.fuzzer import GPTFuzzer
-from gptfuzzer.llm import OpenAILLM, LocalVLLM, LocalLLM
+from gptfuzzer.llm import OpenAILLM, LocalVLLM, LocalLLM, ClaudeLLM, GeminiLLM
 from gptfuzzer.utils.predict import RoBERTaPredictor
 import random
 from LLM_MMR.utils.templates import get_eos
@@ -25,7 +25,15 @@ def fuzzer_attack(args):
 
     openai_model = OpenAILLM(args.model_path, args.openai_key)
     # target_model = LocalLLM(args.target_model) 
-    target_model = LocalVLLM(args.target_model)
+
+    if 'gpt' in args.target_model:
+        target_model = OpenAILLM(args.target_model, args.openai_key)
+    elif 'claude' in args.target_model:
+        target_model = ClaudeLLM(args.target_model, args.claude_key)
+    elif 'gemini' in args.target_model:
+        target_model = GeminiLLM(args.target_model, args.gemini_key)
+    else:
+       target_model = LocalLLM(args.target_model)
     origin_question = pd.read_csv('./Dataset/harmful.csv')['text'].tolist()[args.index]
     # roberta_model = RoBERTaPredictor('/home/zck7060/chatguard/archieve_2000/checkpoints_gpt4_90000', device='cuda:1')
     
@@ -69,7 +77,7 @@ def fuzzer_attack(args):
             OpenAIMutatorGenerateSimilar(openai_model),
             OpenAIMutatorRephrase(openai_model),
             OpenAIMutatorShorten(openai_model)],
-            concatentate=False,
+            concatentate=True,
         ),
         select_policy=MCTSExploreSelectPolicy(),
         energy=args.energy,
