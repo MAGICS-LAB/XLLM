@@ -45,9 +45,9 @@ def attack(args):
       questions = questions + eos_token * args.eos_num
       
   args.question = questions
-  print(args.question)
+  
   response = target_model.generate_batch(args.question)
-  result = predictor.predict([response], questions[0])
+  result = predictor.predict([response], args.question)
   return result
 
 

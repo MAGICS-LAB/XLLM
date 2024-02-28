@@ -50,7 +50,7 @@ def draw(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Draw GPTFuzzer attack')
-    parser.add_argument('--model_path', type=str, default='allenai/tulu-2-dpo-13b', 
+    parser.add_argument('--model_path', type=str, default='claude-instant-1.2', 
                         help='target model path')
     parser.add_argument('--steps', type=int, default=1000, help='The number of steps')
     parser.add_argument('--step_interval', type=int, default=10, help='The interval of steps')

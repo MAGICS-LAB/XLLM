@@ -10,7 +10,6 @@ import json
 from tqdm import tqdm
 
 #list1 = [14]
-list1 = [144]
 
 LLAMA2_PROMPT = {
     "description": "Llama 2 chat one shot prompt",
@@ -53,15 +52,14 @@ def evaluate(args):
         template = LLAMA2_PROMPT
     
     for indx in tqdm(range(len(inputs))):
-        if indx in list1: 
-            prompt = inputs[indx]
-            prompt = template['prompt'].format(instruction=prompt)
-            input = tokenizer(prompt, return_tensors="pt").to(model.device)
-            with torch.no_grad():
-                outputs = model.generate(**input, max_length=256)
-            num_input_tokens = input.input_ids.shape[1]
-            decoded_output = tokenizer.decode(outputs[0][num_input_tokens:], skip_special_tokens=True)
-            responses[indx] = decoded_output
+        prompt = inputs[indx]
+        prompt = template['prompt'].format(instruction=prompt)
+        input = tokenizer(prompt, return_tensors="pt").to(model.device)
+        with torch.no_grad():
+            outputs = model.generate(**input, max_length=256)
+        num_input_tokens = input.input_ids.shape[1]
+        decoded_output = tokenizer.decode(outputs[0][num_input_tokens:], skip_special_tokens=True)
+        responses[indx] = decoded_output
         
 
 

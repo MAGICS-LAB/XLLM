@@ -4,6 +4,7 @@ __pycache__
 *.csv
 *.png
 *.json
+*.txt
 *.log
 rome/
 representation-engineering/

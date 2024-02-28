@@ -11,7 +11,7 @@ harmful_already = pd.read_csv('dataset/harmful.csv')['text'].tolist()
 
 data = pd.read_csv('AdvBench_minimal_change.csv')
 
-list1 = [91, 92, 100, 109, 117, 135, 137, 138, 140, 141, 161, 169, 173, 174, 183, 198, 211, 212, 237, 238, 243]
+list1 = []
 results = []
 questions = []
 for index in range(len(harmful_questions)):
