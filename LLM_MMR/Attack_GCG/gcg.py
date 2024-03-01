@@ -317,7 +317,7 @@ class GCG:
             input_ids = torch.tensor(toks, device=self.device)
             tmp_input = input_ids[:target_slice.start]
             
-            to_verify = tmp_input[-5:].tolist() if 'gemma' not in self.args.model_path else tmp_input[-4:].tolist()
+            to_verify = tmp_input[-5:].tolist()
             if to_verify != verify_input(self.args.model_path): 
                 print('The input_ids after clip target is not correct')
                 print(to_verify)
