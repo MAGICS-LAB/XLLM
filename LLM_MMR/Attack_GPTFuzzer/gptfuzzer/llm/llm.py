@@ -6,7 +6,7 @@ import time
 import concurrent.futures
 from vllm import LLM as vllm
 from vllm import SamplingParams
-from LLM_MMR.utils.constants import get_black_list
+from LLM_MMR.utils.constants import *
 from anthropic import Anthropic, HUMAN_PROMPT, AI_PROMPT
 import google.generativeai as genai
 

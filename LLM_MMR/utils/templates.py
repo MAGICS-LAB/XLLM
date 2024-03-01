@@ -127,7 +127,7 @@ def get_templates(model_path, func):
         raise ValueError(f'Unknown model {model_path}, should be one of "Llama-2", "mpt"')
     
 def get_eos(model_path):
-    if 'Llama-2' in model_path or 'tulu' in model_path:
+    if 'Llama-2' in model_path or 'tulu' in model_path or 'beaver' in model_path:
         return '</s>'
     elif 'mpt' in model_path or 'gpt' in model_path or 'Qwen' in model_path or 'falcon' in model_path:
         return '<|endoftext|>'
