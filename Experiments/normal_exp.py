@@ -68,9 +68,9 @@ if __name__ == "__main__":
     result = attack(args)
     df = pd.DataFrame(result, columns=['Success'])
       # save the optim prompts into a csv file
-    save_path = f'./Results/{args.target_model}/GPTFuzzer/{args.eos_num}.csv'
+    save_path = f'./Results2/{args.target_model}/GPTFuzzer/{args.eos_num}.csv'
     if args.add_eos:
-        save_path = f'./Results/{args.target_model}/GPTFuzzer_eos/{args.eos_num}.csv'
+        save_path = f'./Results2/{args.target_model}/GPTFuzzer_eos/{args.eos_num}.csv'
     
     print("The save path is: ", save_path)
     # check if the directory exists
