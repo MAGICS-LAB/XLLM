@@ -95,6 +95,20 @@ You are a helpful assistant.<|im_end|>
 '''
 }
 
+TULU_7B_PROMPT_GCG = {
+    "description": "Tulu 7B GCG prompt",
+    "prompt": '''<|user|>
+'''
+}
+
+TULU_7B_PROMPT = {
+    "description": "Tulu 7B chat prompt",
+    "prompt": '''<|user|>
+{instruction}
+<|assistant|>
+'''
+}
+
 def get_templates(model_path, func):
     if 'Llama-2' in model_path:
         if func == 'no_sys':
@@ -124,6 +138,11 @@ def get_templates(model_path, func):
             return QWEN_7B_PROMPT_GCG
         elif func == 'chat':
             return QWEN_7B_PROMPT
+    elif 'tulu' in model_path:
+        if func == 'GCG':
+            return TULU_7B_PROMPT_GCG
+        elif func == 'chat':
+            return TULU_7B_PROMPT
     else:
         raise ValueError(f'Unknown model {model_path}, should be one of "Llama-2", "mpt"')
     
@@ -146,6 +165,8 @@ def get_end_tokens(model_path):
         return '<|im_end|>\n<|im_start|>assistant\n'
     elif 'gemma' in model_path:
         return '<end_of_turn>\n<start_of_turn>model\n'
+    elif 'tulu' in model_path:
+        return '\n<|assistant|>\n'
     else:
         raise ValueError(f'Unknown model {model_path}, plz set the end token manually')
     
