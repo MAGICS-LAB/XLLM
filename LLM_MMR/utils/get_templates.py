@@ -1,5 +1,5 @@
 from fastchat.model import get_conversation_template
-
+from constants import *
 
 def chat_templates(model_path, func):
     conv_temp = get_conversation_template(model_path)
@@ -31,7 +31,7 @@ def chat_templates(model_path, func):
     
 if __name__ == "__main__":
     # test meta-llama/Llama-2-7b-chat-hf
-    print(chat_templates('google/gemma-7b-it', 'chat'))
+    print(chat_templates('PKU-Alignment/beaver-7b-v1.0', 'chat'))
     # print("=====================================")
     # print(chat_templates('meta-llama/Llama-2-7b-chat-hf', 'GCG'))
     # print("=====================================")

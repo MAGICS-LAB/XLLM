@@ -15,13 +15,14 @@ import random
 from LLM_MMR.utils.templates import get_eos
 random.seed(100)
 import logging
+
 httpx_logger: logging.Logger = logging.getLogger("httpx")
 # disable httpx logging
 httpx_logger.setLevel(logging.WARNING)
 
 
 def fuzzer_attack(args):
-    initial_seed = pd.read_csv(args.seed_path)['prompt'].tolist()
+    initial_seed = pd.read_csv(args.seed_path)['text'].tolist()
 
     openai_model = OpenAILLM(args.model_path, args.openai_key)
     # target_model = LocalLLM(args.target_model) 
