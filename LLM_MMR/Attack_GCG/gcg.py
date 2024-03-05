@@ -131,13 +131,16 @@ class GCG:
         self.max_successful_prompt = args.max_successful_prompt
         self.max_attack_steps = args.max_attack_steps
         self.loss_threshold = args.loss_threshold if hasattr(args, 'loss_threshold') else 0.5
-        self.early_stop_iterations = args.early_stop_iterations if hasattr(args, 'early_stop_iterations') else 300
+        self.early_stop_iterations = args.early_stop_iterations if hasattr(args, 'early_stop_iterations') else 200
         self.early_stop_local_optim = args.early_stop_local_optim if hasattr(args, 'early_stop_local_optim') else 50
         self.update_token_threshold = args.update_token_threshold if hasattr(args, 'update_token_threshold') else 5
         self.test_prefixes = get_black_list()
         self.gcg_prompt = get_templates(args.model_path, 'GCG')
         self.chat_prompt = get_templates(args.model_path, 'chat')
         self.end_tokens = get_end_tokens(args.model_path)
+        self.no_space = False
+        if self.args.add_eos and ('tulu' in self.args.model_path or 'mistral' in self.args.model_path or 'vicuna-7b-v1.3' in self.args.model_path):
+            self.no_space = True
         
     def init_adv_postfix(self, random=False):
         '''
@@ -293,7 +296,10 @@ class GCG:
                 toks = self.tokenizer(curr_prompt).input_ids
                 question_slice = slice(template_slice.stop, len(toks))
                 control_str, _ = self.init_adv_postfix()
-                curr_prompt = curr_prompt + ' ' + control_str
+                if self.no_space:
+                    curr_prompt = curr_prompt + control_str
+                else:
+                    curr_prompt = curr_prompt + ' ' + control_str
                 toks = self.tokenizer(curr_prompt).input_ids
                 control_slice = slice(question_slice.stop, len(toks))
                 control_tokens = torch.tensor(toks[control_slice], device=self.device)
@@ -330,6 +336,21 @@ class GCG:
             print("initial outputs:", generation)
             print('*' * 40)
 
+            success = self.evaluate_generation(generation, target)
+            if success:
+                # sometimes adding the eos will make it successful at once
+                update_toks = 0
+                print("Attack success, append the current trigger to optim_prompts")
+                curr_optim_prompts.append(control_str)
+                curr_optim_steps.append(attack_steps)
+                print("Current success prompt number:", len(curr_optim_prompts))
+                
+                if len(curr_optim_prompts) >= self.max_prompts_in_single_attack:
+                    end_iter = True
+                    
+                if len(optim_prompts) + len(curr_optim_prompts) >= self.max_successful_prompt:
+                    end_iter = True
+            
             logits = self.model(input_ids=input_ids.unsqueeze(0)).logits
             tmp_loss = self.get_loss(logits, target_tokens, loss_slice)
             print('init loss:', tmp_loss.item())
@@ -374,7 +395,7 @@ class GCG:
                 topk = 64
                 # use a much smaller bs and topk for gemma
                 # unknown reason, gemma will consume a lot of gpu memory for batch
-                if 'gemma' in self.args.model_path:
+                if 'gemma' in self.args.model_path or 'tulu' in self.args.model_path:
                     batch_size = 32
                     topk = 16
                 filter_cand=True
@@ -439,7 +460,10 @@ class GCG:
                             # if the str start with space, remove the space
                             if current_control_str[0] == ' ': 
                                 current_control_str = current_control_str[1:]
-                            current_control_str = self.question + ' ' + current_control_str
+                            if self.no_space:
+                                current_control_str = self.question + current_control_str
+                            else:
+                                current_control_str = self.question + ' ' + current_control_str
 
                             print("Current_control_str:", current_control_str)
                             current_full_string = self.chat_prompt['prompt'].format(instruction=current_control_str)
@@ -482,7 +506,10 @@ class GCG:
                 step_end_time = time.time()
                 print("Time for this step: ", step_end_time - step_time)
                 
-            print("In this attempt, after {} iterations, the best loss is: {}".format(i, best_loss.data.item()))
+            if isinstance(best_loss, int):
+                print("In this attempt, after {} iterations, the best loss is: {}".format(i, best_loss))
+            else:
+                print("In this attempt, after {} iterations, the best loss is: {}".format(i, best_loss.data.item()))
             print('In {} attemp, number of optim prompts is: {}'.format(attack_attempt, len(curr_optim_prompts)))
             
             optim_prompts.extend(curr_optim_prompts)

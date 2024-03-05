@@ -109,6 +109,26 @@ TULU_7B_PROMPT = {
 '''
 }
 
+VICUNA_7B_PROMPT_GCG = {
+    "description": "Vicuna 7B GCG prompt",
+    "prompt": '''A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions. USER: '''
+}
+
+VICUNA_7B_PROMPT = {
+    "description": "Vicuna 7B chat prompt",
+    "prompt": '''A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions. USER: {instruction} ASSISTANT:'''
+}
+
+MISTRAL_7B_PROMPT_GCG = {
+    "description": "Mistral 7B GCG prompt",
+    "prompt": '''<s>[INST] '''
+}
+
+MISTRAL_7B_PROMPT = {
+    "description": "Mistral 7B chat prompt",
+    "prompt": '''<s>[INST] {instruction} [/INST]'''
+}
+
 def get_templates(model_path, func):
     if 'Llama-2' in model_path:
         if func == 'no_sys':
@@ -143,11 +163,21 @@ def get_templates(model_path, func):
             return TULU_7B_PROMPT_GCG
         elif func == 'chat':
             return TULU_7B_PROMPT
+    elif 'mistral' in model_path:
+        if func == 'GCG':
+            return MISTRAL_7B_PROMPT_GCG
+        elif func == 'chat':
+            return MISTRAL_7B_PROMPT
+    elif 'vicuna' in model_path:
+        if func == 'GCG':
+            return VICUNA_7B_PROMPT_GCG
+        elif func == 'chat':
+            return VICUNA_7B_PROMPT
     else:
         raise ValueError(f'Unknown model {model_path}, should be one of "Llama-2", "mpt"')
     
 def get_eos(model_path):
-    if 'Llama-2' in model_path or 'tulu' in model_path or 'beaver' in model_path:
+    if 'Llama-2' in model_path or 'tulu' in model_path or 'beaver' in model_path or 'mistral' in model_path or 'vicuna' in model_path:
         return '</s>'
     elif 'mpt' in model_path or 'gpt' in model_path or 'Qwen' in model_path or 'falcon' in model_path:
         return '<|endoftext|>'
@@ -167,6 +197,10 @@ def get_end_tokens(model_path):
         return '<end_of_turn>\n<start_of_turn>model\n'
     elif 'tulu' in model_path:
         return '\n<|assistant|>\n'
+    elif 'mistral' in model_path:
+        return ' [/INST]'
+    elif 'vicuna' in model_path:
+        return ' ASSISTANT:'
     else:
         raise ValueError(f'Unknown model {model_path}, plz set the end token manually')
     
