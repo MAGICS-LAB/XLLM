@@ -16,11 +16,11 @@ if __name__ == "__main__":
                         help='mutate model path')
     parser.add_argument('--target_model', type=str, default='google/gemma-7b-it',
                         help='The target model, openai model or open-sourced LLMs')
-    parser.add_argument('--max_query', type=int, default=1000,
+    parser.add_argument('--max_query', type=int, default=100,
                         help='The maximum number of queries')
     parser.add_argument('--max_jailbreak', type=int,
                         default=1, help='The maximum jailbreak number')
-    parser.add_argument('--energy', type=int, default=5,
+    parser.add_argument('--energy', type=int, default=1,
                         help='The energy of the fuzzing process')
     parser.add_argument('--seed_selection_strategy', type=str,
                         default='round_robin', help='The seed selection strategy')
@@ -29,6 +29,7 @@ if __name__ == "__main__":
                         default="./Dataset/fuzzer_seed.csv", help="The seed path")
     parser.add_argument("--add_eos", action='store_true')
     parser.add_argument("--eos_num", type=int, default=10, help="The number of eos tokens")
+    parser.add_argument("--run_index", type=int, default=0)
     add_model_args(parser)
 
     args = parser.parse_args()

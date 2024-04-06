@@ -49,9 +49,9 @@ def fuzzer_attack(args):
     predictor = OpenAILLM(args.model_path, args.openai_key, system_message=predict_system_message)
 
     # save the optim prompts into a csv file
-    save_path = f'./Results/{args.target_model}/GPTFuzzer/{args.index}.csv'
+    save_path = f'./Results/{args.target_model}/GPTFuzzer-{args.run_index}/{args.index}.csv'
     if args.add_eos:
-        save_path = f'./Results/{args.target_model}/GPTFuzzer_eos/{args.index}.csv'
+        save_path = f'./Results/{args.target_model}/GPTFuzzer_eos-{args.run_index}/{args.index}.csv'
     
     print("The save path is: ", save_path)
     # check if the directory exists
