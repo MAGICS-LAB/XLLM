@@ -1,9 +1,9 @@
 #!/bin/bash
 
 PYTHON_SCRIPT="./Experiments/gcg_exp.py"
-MODEL_PATH="meta-llama/Llama-2-7b-chat-hf"
-ADD_EOS=False
-RUN_INDEX=0
+MODEL_PATH="meta-llama/Llama-2-13b-chat-hf"
+ADD_EOS=True
+RUN_INDEX=2
 # Set the log path based on ADD_EOS
 if [ "$ADD_EOS" = "True" ]; then
     LOG_PATH="Logs/${MODEL_PATH}/GCG_eos-${RUN_INDEX}"
@@ -22,9 +22,9 @@ fi
 
 # Function to find the first available GPU
 find_free_gpu() {
-    for i in {0..7}; do
+    for i in {0..1}; do
         free_mem=$(nvidia-smi -i $i --query-gpu=memory.free --format=csv,noheader,nounits | awk '{print $1}')
-        if [ "$free_mem" -ge 80000 ]; then
+        if [ "$free_mem" -ge 60000 ]; then
             echo $i
             return
         fi

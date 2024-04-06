@@ -139,7 +139,7 @@ class GCG:
         self.chat_prompt = get_templates(args.model_path, 'chat')
         self.end_tokens = get_end_tokens(args.model_path)
         self.no_space = False
-        if self.args.add_eos and ('tulu' in self.args.model_path or 'mistral' in self.args.model_path or 'vicuna-7b-v1.3' in self.args.model_path):
+        if self.args.add_eos and ('tulu' in self.args.model_path or 'mistral' in self.args.model_path or 'vicuna-7b-v1.3' in self.args.model_path or 'gemma' in self.args.model_path ):
             self.no_space = True
         
     def init_adv_postfix(self, random=False):
@@ -252,6 +252,9 @@ class GCG:
             em = 1
         else:
             em = 0
+            
+        if jailbroken==False or em==0:
+            return False
         
         question = self.args.question
         if self.args.add_eos:
@@ -260,7 +263,7 @@ class GCG:
             question = question.replace(eos_token, '')
         chatgpt_evaluate_result = chatgpt_evaluate(generation, question)
         
-        if jailbroken and em and chatgpt_evaluate_result:
+        if chatgpt_evaluate_result:
             return True
         else:
             return False
@@ -395,7 +398,7 @@ class GCG:
                 topk = 64
                 # use a much smaller bs and topk for gemma
                 # unknown reason, gemma will consume a lot of gpu memory for batch
-                if 'gemma' in self.args.model_path or 'tulu' in self.args.model_path:
+                if 'gemma' in self.args.model_path or 'tulu' in self.args.model_path or '13B' in self.args.model_path:
                     batch_size = 32
                     topk = 16
                 filter_cand=True
@@ -454,7 +457,6 @@ class GCG:
                         print("Current outputs:", generation)
                         
                         success = self.evaluate_generation(generation, target)
-                        
                         if success:
                             current_control_str = self.tokenizer.decode(tmp_input[control_slice.start: control_slice.stop])
                             # if the str start with space, remove the space
