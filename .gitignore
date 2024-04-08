@@ -11,3 +11,7 @@ representation-engineering/
 !Dataset/*.csv
 GCG/
 Draw/
+order_test.ipynb
+test_gcg.py
+test_ica.py
+test_model_loader.ipynb
