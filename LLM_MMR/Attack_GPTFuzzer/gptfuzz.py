@@ -78,7 +78,7 @@ def fuzzer_attack(args):
             OpenAIMutatorGenerateSimilar(openai_model),
             OpenAIMutatorRephrase(openai_model),
             OpenAIMutatorShorten(openai_model)],
-            concatentate=True,
+            concatentate=False,
         ),
         select_policy=MCTSExploreSelectPolicy(),
         energy=args.energy,
