@@ -102,7 +102,7 @@ def get_embeddings(model, input_ids):
 def get_fixed_list(model_path):
     if 'Llama-2' in model_path:
         return ['!']
-    elif 'mpt' in model_path or 'gemma' in model_path or 'Qwen' in model_path:
+    elif 'gemma' in model_path or 'Qwen' in model_path:
         return ['!']
     elif 'tulu' in model_path:
         return ['!']
@@ -110,6 +110,8 @@ def get_fixed_list(model_path):
         return ['!']
     elif 'vicuna' in model_path:
         return ['!']
+    elif 'mpt' in model_path: #MPT model is special
+        return ['this']
     else:
         raise ValueError(f'Unknown model {model_path}, should be one of "Llama-2", "mpt"')
         
