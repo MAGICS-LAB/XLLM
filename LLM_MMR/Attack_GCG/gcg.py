@@ -398,7 +398,7 @@ class GCG:
                 topk = 64
                 # use a much smaller bs and topk for gemma
                 # unknown reason, gemma will consume a lot of gpu memory for batch
-                if 'gemma' in self.args.model_path or 'tulu' in self.args.model_path or '13B' in self.args.model_path:
+                if 'gemma' in self.args.model_path or 'tulu' in self.args.model_path or '13b' in self.args.model_path:
                     batch_size = 32
                     topk = 16
                 filter_cand=True
