@@ -129,6 +129,26 @@ MISTRAL_7B_PROMPT = {
     "prompt": '''<s>[INST] {instruction} [/INST]'''
 }
 
+LLAMA3_8B_PROMPT = {
+    "description": "Llama 3 8B chat prompt",
+    "prompt": '''<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+
+<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+{instruction}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+'''
+}
+
+LLAMA3_8B_PROMPT_GCG = {
+    "description": "Llama 3 8B GCG prompt",
+    "prompt": '''<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+
+<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+'''
+}
+
 def get_templates(model_path, func):
     if 'Llama-2' in model_path:
         if func == 'no_sys':
@@ -173,8 +193,13 @@ def get_templates(model_path, func):
             return VICUNA_7B_PROMPT_GCG
         elif func == 'chat':
             return VICUNA_7B_PROMPT
+    elif 'Llama-3' in model_path:
+        if func == 'chat':
+            return LLAMA3_8B_PROMPT
+        elif func == 'GCG':
+            return LLAMA3_8B_PROMPT_GCG
     else:
-        raise ValueError(f'Unknown model {model_path}, should be one of "Llama-2", "mpt"')
+        raise ValueError(f'Unknown model {model_path})')
     
 def get_eos(model_path):
     if 'Llama-2' in model_path or 'tulu' in model_path or 'beaver' in model_path or 'mistral' in model_path or 'vicuna' in model_path:
@@ -185,6 +210,8 @@ def get_eos(model_path):
         return '<eos>'
     elif 'claude' in model_path:
       return '<EOT>'
+    elif 'Llama-3' in model_path:
+        return '<|end_of_text|>'
     else:
         raise ValueError(f'Unknown model {model_path}, plz set the eos token manually')
     
@@ -201,6 +228,8 @@ def get_end_tokens(model_path):
         return ' [/INST]'
     elif 'vicuna' in model_path:
         return ' ASSISTANT:'
+    elif 'Llama-3' in model_path:
+        return '<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n'
     else:
         raise ValueError(f'Unknown model {model_path}, plz set the end token manually')
     

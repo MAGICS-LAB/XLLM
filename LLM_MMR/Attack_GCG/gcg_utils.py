@@ -66,6 +66,9 @@ def verify_input(model_path):
         return [918, 733, 28748, 16289, 28793]
     elif 'vicuna' in model_path:
         return [319, 1799, 9047, 13566, 29901]
+    elif 'Llama-3' in model_path:
+        return [128009, 128006, 78191, 128007, 271]
+
     
 def get_embedding_weight(model):
     """
@@ -112,6 +115,8 @@ def get_fixed_list(model_path):
         return ['!']
     elif 'mpt' in model_path: #MPT model is special
         return ['this']
+    elif 'Llama-3' in model_path:
+        return ['!']
     else:
         raise ValueError(f'Unknown model {model_path}, should be one of "Llama-2", "mpt"')
         
