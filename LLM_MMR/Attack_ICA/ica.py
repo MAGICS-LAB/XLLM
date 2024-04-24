@@ -1,12 +1,12 @@
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from fastchat.model import add_model_args
-import argparse
+import csv
 import pandas as pd
 from LLM_MMR.Attack_GPTFuzzer.gptfuzzer.llm import OpenAILLM, LocalLLM
 import random
 from LLM_MMR.utils.templates import get_eos
+from LLM_MMR.Attack_ICA.few_shot_examples import *
 random.seed(100)
 import logging
 httpx_logger: logging.Logger = logging.getLogger("httpx")
@@ -31,22 +31,40 @@ def ICA_attack(args):
 
     # save the optim prompts into a csv file
     save_path = f'./Results/{args.target_model}/ICA-{args.run_index}/{args.index}.csv'
-    if args.add_eos:
-        save_path = f'./Results/{args.target_model}/ICA_eos-{args.run_index}/{args.index}.csv'
     
     print("The save path is: ", save_path)
     # check if the directory exists
     if not os.path.exists(os.path.dirname(save_path)):
         os.makedirs(os.path.dirname(save_path))
     
-    questions = origin_question
-    if args.add_eos:
-        eos_token = get_eos(args.target_model)
-        questions = questions + eos_token * args.eos_num
-        
-    args.question = questions
-    print("The question is: ", questions)
-    
-    
+    with open(save_path, 'w') as f:
+        writer = csv.writer(f)
+        writer.writerow(['eos_num', 'response', 'result'])
+        for eos_num in range(args.eos_num):
+            print(f"eos_num: {eos_num}")
+            questions = origin_question
+            if args.add_eos:
+                eos_token = get_eos(args.target_model)
+                questions = questions + eos_token * args.eos_num
 
+            args.question = questions
+            print("The question is: ", questions)
 
+            if args.few_shot_num == 1:
+                ICL = one_shot
+            elif args.few_shot_num == 2:
+                ICL = two_shot
+            elif args.few_shot_num == 3:
+                ICL = three_shot
+            else:
+                raise ValueError(f"Unknown few shot number {args.few_shot_num}")
+
+            prompt = ICL + 'User: ' + args.question
+            if args.few_shot_num == 0:
+                prompt = args.question
+
+            response = target_model.generate(prompt, max_tokens=args.max_new_tokens)
+            result = predictor.predict([response], origin_question)[0]
+            writer.writerow([eos_num, response, result])
+            if args.early_stop and result == 1:
+                break
