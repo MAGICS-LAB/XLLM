@@ -1,11 +1,10 @@
 #!/bin/bash
 
 PYTHON_SCRIPT="./Experiments/ica_exp.py"
-TARGET_MODEL="google/gemma-7b-it"
-FEW_SHOT_NUM=1
+TARGET_MODEL="meta-llama/Llama-2-7b-chat-hf"
 EARLY_STOP=True
 EOS_NUM=20
-LOG_PATH="Logs/${TARGET_MODEL}/ICA-${FEW_SHOT_NUM}"
+LOG_PATH="Logs/${TARGET_MODEL}/ICA"
 
 # Create the log directory if it does not exist
 mkdir -p "$LOG_PATH"
@@ -20,7 +19,7 @@ fi
 find_free_gpu() {
     for i in {0..7}; do
         free_mem=$(nvidia-smi -i $i --query-gpu=memory.free --format=csv,noheader,nounits | awk '{print $1}')
-        if [ "$free_mem" -ge 40000 ]; then
+        if [ "$free_mem" -ge 30000 ]; then
             echo $i
             return
         fi
@@ -30,7 +29,7 @@ find_free_gpu() {
 }
 
 # Start the jobs with GPU assignment
-for index in {0..127}; do
+for FEW_SHOT_NUM in {0..3}; do
 
     FREE_GPU=-1
 
@@ -44,13 +43,13 @@ for index in {0..127}; do
 
     # Run the Python script on the free GPU
     (
-        echo "Task $index started on GPU $FREE_GPU."
-        CUDA_VISIBLE_DEVICES=$FREE_GPU python -u "$PYTHON_SCRIPT" --index $index --target_model $TARGET_MODEL --few_shot_num $FEW_SHOT_NUM --max-new-tokens 512 $EARLY_STOP_FLAG --eos_num $EOS_NUM > "${LOG_PATH}/${index}.log" 2>&1
-        echo "Task $index on GPU $FREE_GPU finished."
+        echo "Task $FEW_SHOT_NUM started on GPU $FREE_GPU."
+        CUDA_VISIBLE_DEVICES=$FREE_GPU python -u "$PYTHON_SCRIPT" --target_model $TARGET_MODEL --few_shot_num $FEW_SHOT_NUM --max-new-tokens 256 $EARLY_STOP_FLAG --eos_num $EOS_NUM > "${LOG_PATH}/${FEW_SHOT_NUM}.log" 2>&1
+        echo "Task $FEW_SHOT_NUM on GPU $FREE_GPU finished."
     ) &
 
-    # Wait for 50 seconds to give the GPU some time to allocate memory
-    sleep 50
+    # Wait for 30 seconds to give the GPU some time to allocate memory
+    sleep 30
 done
 
 # Wait for all background jobs to finish

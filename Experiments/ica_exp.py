@@ -11,7 +11,6 @@ from LLM_MMR.utils.constants import openai_key, claude_key, gemini_key
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='ICA Attack')
-    parser.add_argument('--index', type=int, default=0, help='The index of the question')
     parser.add_argument('--model_path', type=str, default='gpt-3.5-turbo-0125',
                         help='mutate model path')
     parser.add_argument('--target_model', type=str, default='google/gemma-7b-it',
