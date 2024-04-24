@@ -30,7 +30,7 @@ def ICA_attack(args):
     predictor = OpenAILLM(args.model_path, args.openai_key, system_message=predict_system_message)
 
     # save the optim prompts into a csv file
-    save_path = f'./Results/{args.target_model}/ICA-{args.run_index}/{args.index}.csv'
+    save_path = f'./Results/{args.target_model}/ICA-{args.few_shot_num}/{args.index}.csv'
     
     print("The save path is: ", save_path)
     # check if the directory exists
@@ -41,11 +41,11 @@ def ICA_attack(args):
         writer = csv.writer(f)
         writer.writerow(['eos_num', 'response', 'result'])
         for eos_num in range(args.eos_num):
+            print("***" * 20)
             print(f"eos_num: {eos_num}")
             questions = origin_question
-            if args.add_eos:
-                eos_token = get_eos(args.target_model)
-                questions = questions + eos_token * args.eos_num
+            eos_token = get_eos(args.target_model)
+            questions = questions + eos_token * eos_num
 
             args.question = questions
             print("The question is: ", questions)
@@ -64,7 +64,10 @@ def ICA_attack(args):
                 prompt = args.question
 
             response = target_model.generate(prompt, max_tokens=args.max_new_tokens)
+            print(response)
             result = predictor.predict([response], origin_question)[0]
+            if result == 1:
+                print("Success!")
             writer.writerow([eos_num, response, result])
             if args.early_stop and result == 1:
                 break
