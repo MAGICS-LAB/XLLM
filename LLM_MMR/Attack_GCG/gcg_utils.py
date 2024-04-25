@@ -113,7 +113,7 @@ def get_fixed_list(model_path):
         return ['!']
     elif 'vicuna' in model_path:
         return ['!']
-    elif 'mpt' in model_path: #MPT model is special
+    elif 'mpt' in model_path or 'Llama-3' in model_path:
         return ['this']
     elif 'Llama-3' in model_path:
         return ['!']

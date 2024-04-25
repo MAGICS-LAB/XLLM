@@ -131,6 +131,8 @@ class GCG:
         self.max_successful_prompt = args.max_successful_prompt
         self.max_attack_steps = args.max_attack_steps
         self.loss_threshold = args.loss_threshold if hasattr(args, 'loss_threshold') else 0.5
+        if 'Llama-3' in args.model_path:
+            self.loss_threshold = 2.0
         self.early_stop_iterations = args.early_stop_iterations if hasattr(args, 'early_stop_iterations') else 200
         self.early_stop_local_optim = args.early_stop_local_optim if hasattr(args, 'early_stop_local_optim') else 50
         self.update_token_threshold = args.update_token_threshold if hasattr(args, 'update_token_threshold') else 5
@@ -398,7 +400,7 @@ class GCG:
                 topk = 64
                 # use a much smaller bs and topk for gemma
                 # unknown reason, gemma will consume a lot of gpu memory for batch
-                if 'gemma' in self.args.model_path or 'tulu' in self.args.model_path or '13b' in self.args.model_path:
+                if 'gemma' in self.args.model_path or 'tulu' in self.args.model_path or '13b' in self.args.model_path or 'Llama-3' in self.args.model_path:
                     batch_size = 32
                     topk = 16
                 filter_cand=True
