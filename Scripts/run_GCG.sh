@@ -1,9 +1,9 @@
 #!/bin/bash
 
 PYTHON_SCRIPT="./Experiments/gcg_exp.py"
-MODEL_PATH="meta-llama/Llama-2-13b-chat-hf"
+MODEL_PATH="google/gemma-7b-it"
 ADD_EOS=True
-RUN_INDEX=0
+RUN_INDEX=2
 # Set the log path based on ADD_EOS
 if [ "$ADD_EOS" = "True" ]; then
     LOG_PATH="Logs/${MODEL_PATH}/GCG_eos-${RUN_INDEX}"
@@ -20,53 +20,41 @@ if [ "$ADD_EOS" = "True" ]; then
     ADD_EOS_FLAG="--add_eos"
 fi
 
-# Function to find the first available GPU(s)
-find_free_gpus() {
-    if [[ "$MODEL_PATH" == *"13B"* ]]; then
-        local required_free_mem=120000 # Assuming 120GB for 2 GPUs
-        local num_gpus_needed=2
-    else
-        local required_free_mem=60000 # Assuming 60GB for 1 GPU
-        local num_gpus_needed=1
-    fi
-
-    local available_gpus=()
-
+# Function to find the first available GPU
+find_free_gpu() {
     for i in {0..7}; do
-        local free_mem=$(nvidia-smi -i $i --query-gpu=memory.free --format=csv,noheader,nounits | awk '{print $1}')
-        if [ "$free_mem" -ge $(($required_free_mem / $num_gpus_needed)) ]; then
-            available_gpus+=($i)
-            if [ "${#available_gpus[@]}" -eq "$num_gpus_needed" ]; then
-                echo "${available_gpus[@]}"
-                return
-            fi
+        free_mem=$(nvidia-smi -i $i --query-gpu=memory.free --format=csv,noheader,nounits | awk '{print $1}')
+        if [ "$free_mem" -ge 60000 ]; then
+            echo $i
+            return
         fi
     done
 
-    echo "-1" # Return -1 if no suitable GPU(s) is/are found
+    echo "-1" # Return -1 if no suitable GPU is found
 }
 
 # Start the jobs with GPU assignment
 for index in {0..127}; do
 
-    FREE_GPUS="-1"
+    FREE_GPU=-1
 
-    # Keep looping until free GPU(s) is/are found
-    while [ "$FREE_GPUS" == "-1" ]; do
-        FREE_GPUS=$(find_free_gpus)
-        if [ "$FREE_GPUS" == "-1" ]; then
-            sleep 5 # Wait for 5 seconds before trying to find free GPU(s) again
+    # Keep looping until a free GPU is found
+    while [ $FREE_GPU -eq -1 ]; do
+        FREE_GPU=$(find_free_gpu)
+        if [ $FREE_GPU -eq -1 ]; then
+            sleep 5 # Wait for 5 seconds before trying to find a free GPU again
         fi
     done
 
-    # Run the Python script on the free GPU(s)
+    # Run the Python script on the free GPU
     (
-        CUDA_VISIBLE_DEVICES=$FREE_GPUS python -u "$PYTHON_SCRIPT" --index $index --model_path $MODEL_PATH $ADD_EOS_FLAG --run_index $RUN_INDEX > "${LOG_PATH}/${index}.log" 2>&1
-        echo "Task $index on GPU(s) $FREE_GPUS finished."
+        echo "Task $index started on GPU $FREE_GPU."
+        CUDA_VISIBLE_DEVICES=$FREE_GPU python -u "$PYTHON_SCRIPT" --index $index --model_path $MODEL_PATH $ADD_EOS_FLAG --run_index $RUN_INDEX > "${LOG_PATH}/${index}.log" 2>&1
+        echo "Task $index on GPU $FREE_GPU finished."
     ) &
 
-    # Wait for 30 seconds to give the GPU(s) some time to allocate memory
-    sleep 30
+    # Wait for 60 seconds to give the GPU some time to allocate memory
+    sleep 60
 done
 
 # Wait for all background jobs to finish
