@@ -1,14 +1,14 @@
 #!/bin/bash
 
 PYTHON_SCRIPT="./Experiments/gcg_exp.py"
-MODEL_PATH="google/gemma-2b-it"
+MODEL_PATH="google/gemma-7b-it"
 ADD_EOS=True
-
+RUN_INDEX=2
 # Set the log path based on ADD_EOS
 if [ "$ADD_EOS" = "True" ]; then
-    LOG_PATH="Logs/${MODEL_PATH}/GCG_eos"
+    LOG_PATH="Logs/${MODEL_PATH}/GCG_eos-${RUN_INDEX}"
 else
-    LOG_PATH="Logs/${MODEL_PATH}/GCG"
+    LOG_PATH="Logs/${MODEL_PATH}/GCG-${RUN_INDEX}"
 fi
 
 # Create the log directory if it does not exist
@@ -22,14 +22,15 @@ fi
 
 # Function to find the first available GPU
 find_free_gpu() {
-    for i in {5..7}; do
-        if nvidia-smi -i $i | grep 'No running processes found' > /dev/null; then
+    for i in {0..7}; do
+        free_mem=$(nvidia-smi -i $i --query-gpu=memory.free --format=csv,noheader,nounits | awk '{print $1}')
+        if [ "$free_mem" -ge 60000 ]; then
             echo $i
             return
         fi
     done
 
-    echo "-1" # Return -1 if no free GPU is found
+    echo "-1" # Return -1 if no suitable GPU is found
 }
 
 # Start the jobs with GPU assignment
@@ -47,12 +48,13 @@ for index in {0..127}; do
 
     # Run the Python script on the free GPU
     (
-        CUDA_VISIBLE_DEVICES=$FREE_GPU python -u "$PYTHON_SCRIPT" --index $index --model_path $MODEL_PATH $ADD_EOS_FLAG > "${LOG_PATH}/${index}.log" 2>&1
+        echo "Task $index started on GPU $FREE_GPU."
+        CUDA_VISIBLE_DEVICES=$FREE_GPU python -u "$PYTHON_SCRIPT" --index $index --model_path $MODEL_PATH $ADD_EOS_FLAG --run_index $RUN_INDEX > "${LOG_PATH}/${index}.log" 2>&1
         echo "Task $index on GPU $FREE_GPU finished."
     ) &
 
-    # Wait for 30 seconds to give the GPU some time to allocate memory
-    sleep 30
+    # Wait for 60 seconds to give the GPU some time to allocate memory
+    sleep 60
 done
 
 # Wait for all background jobs to finish

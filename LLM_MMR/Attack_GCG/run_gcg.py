@@ -21,9 +21,9 @@ def gcg_attack(args):
     optim_prompts, steps = gcg.run(target)
     
     # save the optim prompts into a csv file
-    save_path = f'./Results/{args.model_path}/GCG/{args.index}.csv'
+    save_path = f'./Results/{args.model_path}/GCG-{args.run_index}/{args.index}.csv'
     if args.add_eos:
-        save_path = f'./Results/{args.model_path}/GCG_eos/{args.index}.csv'
+        save_path = f'./Results/{args.model_path}/GCG_eos-{args.run_index}/{args.index}.csv'
         
     # check if the directory exists
     if not os.path.exists(os.path.dirname(save_path)):
@@ -37,4 +37,3 @@ def gcg_attack(args):
             writer.writerow([prompt, step])
     
     print("The optim prompts are saved.")
-

@@ -1,30 +1,25 @@
 #!/bin/bash
 
-PYTHON_SCRIPT="./Experiments/fuzzer_exp.py"
-MODEL_PATH="allenai/tulu-2-dpo-7b"
-ADD_EOS=True
-RUN_INDEX=2
-# Set the log path based on ADD_EOS
-if [ "$ADD_EOS" = "True" ]; then
-    LOG_PATH="Logs/${MODEL_PATH}/GPTFuzzer_eos-${RUN_INDEX}"
-else
-    LOG_PATH="Logs/${MODEL_PATH}/GPTFuzzer-${RUN_INDEX}"
-fi
+PYTHON_SCRIPT="./Experiments/ica_exp.py"
+TARGET_MODEL="meta-llama/Llama-2-7b-chat-hf"
+EARLY_STOP=True
+EOS_NUM=20
+LOG_PATH="Logs/${TARGET_MODEL}/ICA"
 
 # Create the log directory if it does not exist
 mkdir -p "$LOG_PATH"
 
-# Conditional flag for ADD_EOS
-ADD_EOS_FLAG=""
-if [ "$ADD_EOS" = "True" ]; then
-    ADD_EOS_FLAG="--add_eos"
+# Conditional flag for EARLY_STOP
+EARLY_STOP_FLAG=""
+if [ "$EARLY_STOP" = "True" ]; then
+    EARLY_STOP_FLAG="--early_stop"
 fi
 
 # Function to find the first available GPU
 find_free_gpu() {
-    for i in {0..1}; do
+    for i in {0..7}; do
         free_mem=$(nvidia-smi -i $i --query-gpu=memory.free --format=csv,noheader,nounits | awk '{print $1}')
-        if [ "$free_mem" -ge 60000 ]; then
+        if [ "$free_mem" -ge 30000 ]; then
             echo $i
             return
         fi
@@ -34,7 +29,7 @@ find_free_gpu() {
 }
 
 # Start the jobs with GPU assignment
-for index in {0..127}; do
+for FEW_SHOT_NUM in {0..3}; do
 
     FREE_GPU=-1
 
@@ -48,8 +43,9 @@ for index in {0..127}; do
 
     # Run the Python script on the free GPU
     (
-        CUDA_VISIBLE_DEVICES=$FREE_GPU python -u "$PYTHON_SCRIPT" --index $index --target_model $MODEL_PATH $ADD_EOS_FLAG --run_index $RUN_INDEX > "${LOG_PATH}/${index}.log" 2>&1
-        echo "Task $index on GPU $FREE_GPU finished."
+        echo "Task $FEW_SHOT_NUM started on GPU $FREE_GPU."
+        CUDA_VISIBLE_DEVICES=$FREE_GPU python -u "$PYTHON_SCRIPT" --target_model $TARGET_MODEL --few_shot_num $FEW_SHOT_NUM --max-new-tokens 256 $EARLY_STOP_FLAG --eos_num $EOS_NUM > "${LOG_PATH}/${FEW_SHOT_NUM}.log" 2>&1
+        echo "Task $FEW_SHOT_NUM on GPU $FREE_GPU finished."
     ) &
 
     # Wait for 30 seconds to give the GPU some time to allocate memory

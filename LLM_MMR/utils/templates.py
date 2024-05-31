@@ -20,14 +20,6 @@ If a question does not make any sense, or is not factually coherent, explain why
 {instruction} [/INST] '''
 }
 
-LLAMA2_PROMPT_no_sys = {
-    "description": "Llama 2 prompt without system message",
-    "prompt": '''[INST] <<SYS>>
-
-<</SYS>>
-
-{instruction} [/INST] '''
-}
 
 MPT_7B_PROMPT_GCG = {
     "description": "MPT 7B GCG prompt",
@@ -53,15 +45,6 @@ MPT_7B_PROMPT = {
 '''
 }
 
-MPT_7B_PROMPT_no_sys = {
-    "description": "MPT 7B GCG prompt",
-    "prompt": '''<|im_start|>system
-<|im_end|>
-<|im_start|>user
-{instruction}<|im_end|>
-<|im_start|>assistant
-'''
-}
 
 GEMMA_7B_PROMPT_GCG = {
     "description": "GEMMA 7B GCG prompt",
@@ -95,40 +78,110 @@ You are a helpful assistant.<|im_end|>
 '''
 }
 
+TULU_7B_PROMPT_GCG = {
+    "description": "Tulu 7B GCG prompt",
+    "prompt": '''<|user|>
+'''
+}
+
+TULU_7B_PROMPT = {
+    "description": "Tulu 7B chat prompt",
+    "prompt": '''<|user|>
+{instruction}
+<|assistant|>
+'''
+}
+
+VICUNA_7B_PROMPT_GCG = {
+    "description": "Vicuna 7B GCG prompt",
+    "prompt": '''A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions. USER: '''
+}
+
+VICUNA_7B_PROMPT = {
+    "description": "Vicuna 7B chat prompt",
+    "prompt": '''A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions. USER: {instruction} ASSISTANT:'''
+}
+
+MISTRAL_7B_PROMPT_GCG = {
+    "description": "Mistral 7B GCG prompt",
+    "prompt": '''<s>[INST] '''
+}
+
+MISTRAL_7B_PROMPT = {
+    "description": "Mistral 7B chat prompt",
+    "prompt": '''<s>[INST] {instruction} [/INST]'''
+}
+
+LLAMA3_8B_PROMPT = {
+    "description": "Llama 3 8B chat prompt",
+    "prompt": '''<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+
+<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+{instruction}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+'''
+}
+
+LLAMA3_8B_PROMPT_GCG = {
+    "description": "Llama 3 8B GCG prompt",
+    "prompt": '''<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+
+<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+'''
+}
+
 def get_templates(model_path, func):
     if 'Llama-2' in model_path:
-        if func == 'no_sys':
-            return LLAMA2_PROMPT_no_sys
-        elif func == 'GCG':
+        if func == 'GCG':
             return LLAMA2_PROMPT_GCG
         elif func == 'chat':
             return LLAMA2_PROMPT
         else:
-            raise ValueError(f'Unknown function {func}, should be one of "no_sys", "GCG", "chat"')
+            raise ValueError(f'Unknown function {func}, should be one of "GCG", "chat"')
     elif 'mpt' in model_path:
-        if func == 'no_sys':
-            return MPT_7B_PROMPT_no_sys
-        elif func == 'GCG':
+        if func == 'GCG':
             return MPT_7B_PROMPT_GCG
         elif func == 'chat':
             return MPT_7B_PROMPT
         else:
-            raise ValueError(f'Unknown function {func}, should be one of "no_sys", "GCG", "chat"')
+            raise ValueError(f'Unknown function {func}, should be one of "GCG", "chat"')
     elif 'gemma' in model_path:
         if func == 'GCG':
             return GEMMA_7B_PROMPT_GCG
-        elif func == 'chat' or func == 'no_sys':
+        elif func == 'chat':
             return GEMMA_7B_PROMPT
     elif 'Qwen' in model_path:
         if func == 'GCG':
             return QWEN_7B_PROMPT_GCG
         elif func == 'chat':
             return QWEN_7B_PROMPT
+    elif 'tulu' in model_path:
+        if func == 'GCG':
+            return TULU_7B_PROMPT_GCG
+        elif func == 'chat':
+            return TULU_7B_PROMPT
+    elif 'mistral' in model_path:
+        if func == 'GCG':
+            return MISTRAL_7B_PROMPT_GCG
+        elif func == 'chat':
+            return MISTRAL_7B_PROMPT
+    elif 'vicuna' in model_path:
+        if func == 'GCG':
+            return VICUNA_7B_PROMPT_GCG
+        elif func == 'chat':
+            return VICUNA_7B_PROMPT
+    elif 'Llama-3' in model_path:
+        if func == 'chat':
+            return LLAMA3_8B_PROMPT
+        elif func == 'GCG':
+            return LLAMA3_8B_PROMPT_GCG
     else:
-        raise ValueError(f'Unknown model {model_path}, should be one of "Llama-2", "mpt"')
+        raise ValueError(f'Unknown model {model_path})')
     
 def get_eos(model_path):
-    if 'Llama-2' in model_path or 'tulu' in model_path or 'beaver' in model_path:
+    if 'Llama-2' in model_path or 'tulu' in model_path or 'mistral' in model_path or 'vicuna' in model_path:
         return '</s>'
     elif 'mpt' in model_path or 'gpt' in model_path or 'Qwen' in model_path or 'falcon' in model_path:
         return '<|endoftext|>'
@@ -136,6 +189,8 @@ def get_eos(model_path):
         return '<eos>'
     elif 'claude' in model_path:
       return '<EOT>'
+    elif 'Llama-3' in model_path:
+        return '<|end_of_text|>'
     else:
         raise ValueError(f'Unknown model {model_path}, plz set the eos token manually')
     
@@ -146,8 +201,16 @@ def get_end_tokens(model_path):
         return '<|im_end|>\n<|im_start|>assistant\n'
     elif 'gemma' in model_path:
         return '<end_of_turn>\n<start_of_turn>model\n'
+    elif 'tulu' in model_path:
+        return '\n<|assistant|>\n'
+    elif 'mistral' in model_path:
+        return ' [/INST]'
+    elif 'vicuna' in model_path:
+        return ' ASSISTANT:'
+    elif 'Llama-3' in model_path:
+        return '<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n'
     else:
         raise ValueError(f'Unknown model {model_path}, plz set the end token manually')
     
 if __name__ == '__main__':
-    print(get_templates('meta-llama/Llama-2-7b-chat-hf', 'no_sys'))
+    print(get_templates('meta-llama/Llama-2-7b-chat-hf', 'chat'))
