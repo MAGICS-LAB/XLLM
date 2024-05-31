@@ -20,14 +20,6 @@ If a question does not make any sense, or is not factually coherent, explain why
 {instruction} [/INST] '''
 }
 
-LLAMA2_PROMPT_no_sys = {
-    "description": "Llama 2 prompt without system message",
-    "prompt": '''[INST] <<SYS>>
-
-<</SYS>>
-
-{instruction} [/INST] '''
-}
 
 MPT_7B_PROMPT_GCG = {
     "description": "MPT 7B GCG prompt",
@@ -53,15 +45,6 @@ MPT_7B_PROMPT = {
 '''
 }
 
-MPT_7B_PROMPT_no_sys = {
-    "description": "MPT 7B GCG prompt",
-    "prompt": '''<|im_start|>system
-<|im_end|>
-<|im_start|>user
-{instruction}<|im_end|>
-<|im_start|>assistant
-'''
-}
 
 GEMMA_7B_PROMPT_GCG = {
     "description": "GEMMA 7B GCG prompt",
@@ -151,27 +134,23 @@ LLAMA3_8B_PROMPT_GCG = {
 
 def get_templates(model_path, func):
     if 'Llama-2' in model_path:
-        if func == 'no_sys':
-            return LLAMA2_PROMPT_no_sys
-        elif func == 'GCG':
+        if func == 'GCG':
             return LLAMA2_PROMPT_GCG
         elif func == 'chat':
             return LLAMA2_PROMPT
         else:
-            raise ValueError(f'Unknown function {func}, should be one of "no_sys", "GCG", "chat"')
+            raise ValueError(f'Unknown function {func}, should be one of "GCG", "chat"')
     elif 'mpt' in model_path:
-        if func == 'no_sys':
-            return MPT_7B_PROMPT_no_sys
-        elif func == 'GCG':
+        if func == 'GCG':
             return MPT_7B_PROMPT_GCG
         elif func == 'chat':
             return MPT_7B_PROMPT
         else:
-            raise ValueError(f'Unknown function {func}, should be one of "no_sys", "GCG", "chat"')
+            raise ValueError(f'Unknown function {func}, should be one of "GCG", "chat"')
     elif 'gemma' in model_path:
         if func == 'GCG':
             return GEMMA_7B_PROMPT_GCG
-        elif func == 'chat' or func == 'no_sys':
+        elif func == 'chat':
             return GEMMA_7B_PROMPT
     elif 'Qwen' in model_path:
         if func == 'GCG':
@@ -202,7 +181,7 @@ def get_templates(model_path, func):
         raise ValueError(f'Unknown model {model_path})')
     
 def get_eos(model_path):
-    if 'Llama-2' in model_path or 'tulu' in model_path or 'beaver' in model_path or 'mistral' in model_path or 'vicuna' in model_path:
+    if 'Llama-2' in model_path or 'tulu' in model_path or 'mistral' in model_path or 'vicuna' in model_path:
         return '</s>'
     elif 'mpt' in model_path or 'gpt' in model_path or 'Qwen' in model_path or 'falcon' in model_path:
         return '<|endoftext|>'
@@ -234,4 +213,4 @@ def get_end_tokens(model_path):
         raise ValueError(f'Unknown model {model_path}, plz set the end token manually')
     
 if __name__ == '__main__':
-    print(get_templates('meta-llama/Llama-2-7b-chat-hf', 'no_sys'))
+    print(get_templates('meta-llama/Llama-2-7b-chat-hf', 'chat'))
