@@ -9,9 +9,9 @@ import csv
 from transformers import (AutoModelForCausalLM, AutoTokenizer, GPT2LMHeadModel,
                           GPTJForCausalLM, GPTNeoXForCausalLM,
                           LlamaForCausalLM)
-from LLM_MMR.Attack_GCG.gcg_utils import get_nonascii_toks, verify_input, get_embedding_weight, get_embeddings, get_fixed_list, chatgpt_evaluate
-from LLM_MMR.utils.templates import get_templates, get_end_tokens, get_eos
-from LLM_MMR.utils.constants import get_black_list
+from BOOST.Attack_GCG.gcg_utils import get_nonascii_toks, verify_input, get_embedding_weight, get_embeddings, get_fixed_list, chatgpt_evaluate
+from BOOST.utils.templates import get_templates, get_end_tokens, get_eos
+from BOOST.utils.constants import get_black_list
 
 def token_gradients(model, input_ids, target_tokens, input_slice, loss_slice):
 

@@ -12,7 +12,7 @@ from gptfuzzer.fuzzer import GPTFuzzer
 from gptfuzzer.llm import OpenAILLM, LocalVLLM, LocalLLM, ClaudeLLM, GeminiLLM
 from gptfuzzer.utils.predict import RoBERTaPredictor
 import random
-from LLM_MMR.utils.templates import get_eos
+from BOOST.utils.templates import get_eos
 random.seed(100)
 import logging
 

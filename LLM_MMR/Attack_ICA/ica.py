@@ -3,10 +3,10 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import csv
 import pandas as pd
-from LLM_MMR.Attack_GPTFuzzer.gptfuzzer.llm import OpenAILLM, LocalLLM
+from BOOST.Attack_GPTFuzzer.gptfuzzer.llm import OpenAILLM, LocalLLM
 import random
-from LLM_MMR.utils.templates import get_eos
-from LLM_MMR.Attack_ICA.few_shot_examples import *
+from BOOST.utils.templates import get_eos
+from BOOST.Attack_ICA.few_shot_examples import *
 random.seed(100)
 import logging
 httpx_logger: logging.Logger = logging.getLogger("httpx")

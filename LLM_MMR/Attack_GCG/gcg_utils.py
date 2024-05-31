@@ -4,7 +4,7 @@ from transformers import (AutoModelForCausalLM, AutoTokenizer, GPT2LMHeadModel,
                           LlamaForCausalLM, MptForCausalLM, Qwen2ForCausalLM, 
                           GemmaForCausalLM, MistralForCausalLM)
 from openai import OpenAI
-from LLM_MMR.utils.constants import openai_key
+from BOOST.utils.constants import openai_key
 client = OpenAI(api_key = openai_key)
 import time
 

@@ -2,9 +2,9 @@ import os
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0'  # for debugging
 import pandas as pd
 import argparse
-from LLM_MMR.Attack_GCG.gcg import GCG
+from BOOST.Attack_GCG.gcg import GCG
 import csv
-from LLM_MMR.utils.templates import get_eos
+from BOOST.utils.templates import get_eos
 
 def gcg_attack(args):
 
