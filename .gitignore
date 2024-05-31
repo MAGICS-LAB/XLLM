@@ -21,3 +21,6 @@ save_rep.py
 convert.py
 LLM_MMR/Attack_ICA/ica_quick_test.py
 LLM_MMR/utils/get_templates.py
+compare_rep.py
+read_rep.py
+test_fuzzer.py
