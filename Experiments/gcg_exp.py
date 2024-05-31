@@ -1,9 +1,9 @@
 import sys
 import os
 
-# Add the path to the LLM_MMR folder to sys.path
-sys.path.append(os.path.abspath('../LLM_MMR'))
-from LLM_MMR.Attack_GCG.run_gcg import gcg_attack
+# Add the path to the BOOST folder to sys.path
+sys.path.append(os.path.abspath('../BOOST'))
+from BOOST.Attack_GCG.run_gcg import gcg_attack
 import argparse
 
 if __name__ == "__main__":

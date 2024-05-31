@@ -1,12 +1,12 @@
 import sys
 import os
 
-# Add the path to the LLM_MMR folder to sys.path
-sys.path.append(os.path.abspath('../LLM_MMR'))
+# Add the path to the BOOST folder to sys.path
+sys.path.append(os.path.abspath('../BOOST'))
 import argparse
-from LLM_MMR.Attack_ICA.ica import ICA_attack
+from BOOST.Attack_ICA.ica import ICA_attack
 from fastchat.model import add_model_args
-from LLM_MMR.utils.constants import openai_key, claude_key, gemini_key
+from BOOST.utils.constants import openai_key, claude_key, gemini_key
 
 
 if __name__ == "__main__":
