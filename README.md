@@ -1,20 +1,84 @@
-# The official implementation for paper Mind the Inconspicuous: Revealing the Hidden Weakness in Aligned LLMs’ Ethical Boundaries
+# XLLM: Mind the Inconspicuous — Revealing the Hidden Weakness in Aligned LLMs’ Ethical Boundaries
 
-## Running Environment
-Running the code requires a GPU with at least 40GB memory as it requires LLM inference and gradient computation (for GCG).
+## 1. Introduction
 
-## Requirements
-```bash
-pip install -r requirements.txt
-```
+**XLLM** is the official implementation for the paper *Mind the Inconspicuous: Revealing the Hidden Weakness in Aligned LLMs’ Ethical Boundaries*. This repository provides tools and scripts for probing, attacking, and evaluating the ethical boundaries of large language models (LLMs) using various methods, including GCG, SURE, ICA, and GPTFuzzer.
 
-## Usage
-Each running script is in Scripts folders.
-For example,
+## 2. Environment Setup
+
+> **Note:** Running the code requires a GPU with at least 40GB memory for LLM inference and gradient computation (especially for GCG).
+
+1. Clone the repository:
+   ```bash
+   git clone <your-repo-url>
+   cd XLLM
+   ```
+2. (Recommended) Create and activate a virtual environment:
+   ```bash
+   conda create -n xllm python=3.8
+   conda activate xllm
+   ```
+3. Install required packages:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   *(If requirements.txt is missing, please add it or specify dependencies manually.)*
+
+## 3. Directory Structure
+
+- `Scripts/` — Shell scripts to run main experiments (GCG, SURE, ICA, GPTFuzzer).
+- `Experiments/` — Python scripts for running and evaluating experiments.
+- `BOOST/` — Core attack implementations and utilities:
+  - `Attack_ICA/`, `Attack_GPTFuzzer/`, `Attack_GCG/` — Attack methods and helpers.
+  - `utils/` — Utility modules (datasets, templates, constants).
+- `Dataset/` — Datasets for probing and evaluation (harmful, harmless, Advbench, etc.).
+- `Probing/` — Probing results and screenshots.
+- `.gitignore`, `LICENSE.txt`, `README.md` — Standard project files.
+
+## 4. Usage
+
+All main running scripts are in the `Scripts` folder. For example:
 ```bash
 bash ./Scripts/run_GCG.sh
+bash ./Scripts/run_SURE.sh
+bash ./Scripts/run_GPTFuzzer.sh
+bash ./Scripts/run_ICA.sh
 ```
-The running results will be saved in the Logs folder.
+- Results are saved in the output specified by each script (create a `Logs` directory if needed).
 
-## Close-source LLM Probing
-We provide the probing screenshots in the Probing folder.
+## 5. Experiments
+
+You can run or modify the experiment scripts in the `Experiments` folder:
+- `ica_exp.py`
+- `sure_exp.py`
+- `gcg_exp.py`
+- `fuzzer_exp.py`
+
+## 6. Datasets
+
+The `Dataset` folder contains:
+- `harmful.csv`, `harmful_targets.csv`
+- `Advbench_391_harm.csv`, `Advbench_391_harmless.csv`
+- `fuzzer_seed.csv`, `Advbench.csv`
+
+## 7. Probing
+
+Probing screenshots and results are provided in the `Probing` folder (e.g., `screenshots.pdf`).
+
+## 8. Citation
+
+If you use XLLM in your work, please cite our paper:
+
+```
+@inproceedings{
+  <authors>,
+  title={Mind the Inconspicuous: Revealing the Hidden Weakness in Aligned LLMs’ Ethical Boundaries},
+  year={2024},
+  booktitle={...},
+  url={...}
+}
+```
+
+## 9. Acknowledgements
+
+This project is inspired by and builds upon various open-source works in LLM safety and evaluation.
