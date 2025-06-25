@@ -70,15 +70,18 @@ Probing screenshots and results are provided in the `Probing` folder (e.g., `scr
 If you use XLLM in your work, please cite our paper:
 
 ```
-@inproceedings{
-  <authors>,
-  title={Mind the Inconspicuous: Revealing the Hidden Weakness in Aligned LLMs’ Ethical Boundaries},
-  year={2024},
-  booktitle={...},
-  url={...}
+@misc{yu2025mindinconspicuousrevealinghidden,
+      title={Mind the Inconspicuous: Revealing the Hidden Weakness in Aligned LLMs' Refusal Boundaries}, 
+      author={Jiahao Yu and Haozheng Luo and Jerry Yao-Chieh Hu and Wenbo Guo and Han Liu and Xinyu Xing},
+      year={2025},
+      eprint={2405.20653},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
 }
 ```
 
 ## 9. Acknowledgements
 
 This project is inspired by and builds upon various open-source works in LLM safety and evaluation.
+- GPTFuzzer: https://github.com/sherdencooper/GPTFuzz
+- GCG: https://github.com/llm-attacks/llm-attacks
