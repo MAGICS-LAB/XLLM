@@ -1,4 +1,4 @@
-# XLLM: Mind the Inconspicuous — Revealing the Hidden Weakness in Aligned LLMs’ Ethical Boundaries
+# Mind the Inconspicuous: Revealing the Hidden Weakness in Aligned LLMs’ Ethical Boundaries
 
 ## 1. Introduction
 
